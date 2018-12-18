@@ -72,6 +72,7 @@ urlpatterns = [
     url(r'^deploy/project_manage/deploy/$', dviews.project_deploy, name='project_deploy'),
     url(r'^deploy/get_groups/$', dviews.ajax_user_groups, name='ajax_user_groups'),
     url(r'^audit/log_audit/$', uviews.audit_log, name='log_audit'),
+    url(r'^audit/log_event/$', uviews.event_log, name='log_event'),
     url(r'^asset/server_info/$', aviews.get_server_asset_info, name='server_info'),
     url(r'^asset/idc/list/$', aviews.idc_asset_list, name='idc_asset_list'),
     url(r'^asset/idc/add/$', aviews.idc_asset_manage, name='idc_add'),

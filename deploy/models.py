@@ -18,6 +18,28 @@ from django.utils import timezone
 from deploy.storage import FileStorage
 from deploy.soms_lib import get_token
 
+class jids(models.Model):
+    jid = models.CharField(unique=True,max_length=255)
+    load = models.TextField()
+    #class Meta:
+    #    index_together = [("jid"),]
+    def __str__(self):
+        return self.jid
+
+class salt_event_returns(models.Model):
+    fun =models.CharField(max_length=50,db_index=True)
+    jid = models.CharField(max_length=255,db_index=True)
+    fanhui = models.TextField()
+    node = models.CharField(max_length=255,db_index=True)
+    success = models.CharField(max_length=10)
+    full_ret = models.TextField()
+    alter_time = models.DateTimeField(default = timezone.now)
+    def __str__(self):
+        return self.node
+
+    class Meta:
+        ordering = ['-alter_time']
+
 
 def user_dir_path(instance, filename):
     # if instance.visible == 0:

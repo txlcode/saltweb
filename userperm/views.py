@@ -15,7 +15,8 @@ from django.views.static import serve
 
 from .models import *
 from .forms import *
-
+from deploy.models import salt_event_returns
+import json
 # Create your views here.
 
 def UserIP(request):
@@ -159,7 +160,19 @@ def audit_log(request):
         return render(request, 'userperm_log_audit.html', {'all_logs': logs})
     else:
         raise Http404
-
+@login_required
+def event_log(request):
+    if request.user.is_superuser:
+        logs = salt_event_returns.objects.all()[:300]
+        if request.method == 'GET':
+            if request.GET.has_key('aid'):
+                aid = request.get_full_path().split('=')[1]
+                log_detail = salt_event_returns.objects.filter(id=aid)
+                return render(request, 'userperm_log_event_detail.html',
+                              {'log_detail': log_detail})
+        return render(request, 'userperm_log_event_audit.html', {'all_logs': logs})
+    else:
+        raise Http404
 
 @login_required
 def protected_serve(request, path, document_root=None):
