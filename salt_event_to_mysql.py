@@ -26,13 +26,13 @@ for eachevent in event.iter_events(full=True):
             # Igonre saltutil.find_job event
             if ret['fun'] == "saltutil.find_job":
                 continue
-            dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            #dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             sql = '''INSERT INTO `deploy_salt_event_returns`
                 (`fun`, `jid`, `fanhui`, `node`, `success`, `full_ret`,`alter_time` )
                 VALUES (%s, %s, %s, %s, %s, %s, %s)'''
             cursor.execute(sql, (ret['fun'], ret['jid'],
-                                 json.dumps(ret['return'],indent=4), ret['id'],
-                                 ret['success'], json.dumps(ret,indent=4),dt))
+                                 json.dumps(ret['return']), ret['id'],
+                                 ret['success'], json.dumps(ret,indent=4),ret['_stamp']))
             cursor.execute("COMMIT")
     # Other Event
     else:

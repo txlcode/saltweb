@@ -50,7 +50,7 @@
                                     <td>{{ i.node }}</td>
                                     <td>{{ i.fun }}</td>
                                     <td>{{ i.success }}</td>
-                                    <td>{{ i.alter_time }}</td>
+                                    <td>{{ i.alter_time | date:"Y-m-d H:i:s"  }}</td>
                                     <td>{{ i.jid }}</td>
                                 </tr>
                                 {% endfor %}
