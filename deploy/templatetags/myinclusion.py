@@ -48,7 +48,20 @@ def show_groups(pk, user_type):
 
 register.inclusion_tag('tag_user_departments.html')(show_groups)
 
+def show_salt_modules(pk, user_type):
+    '''
+    获取模块和函数
+    '''
+    if user_type:
+        modules_dict = {i['modules'] for i in Models_fun.objects.values('modules')}
+    else:
+        d = User.objects.get(pk=pk).department
+        group_dict = {i['groupname']:i['nickname'] for d in User.objects.get(pk=pk).department.all()
+                      for i in d.saltgroup_department_set.values('groupname', 'nickname')}
 
+    return {'group_dict':sorted(list(set(group_dict.items())))}
+
+register.inclusion_tag('tag_user_departments.html')(show_salt_modules)
 def show_modules(u, user_type):
     '''
     模块部署中显示所有模块

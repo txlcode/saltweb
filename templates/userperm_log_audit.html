@@ -34,6 +34,7 @@
                             <thead>
                                 <tr>
                                     <th>详细</th>
+                                    <th>节点</th>
                                     <th>用户</th>
                                     <th>用户IP</th>
                                     <th>操作时间</th>
@@ -48,6 +49,7 @@
                                     <td>
                                         <a href="{% url 'log_audit' %}?aid={{ i.pk }}"><i class="fa fa-envelope "></i></a>
                                     </td>
+                                    <td>{{ i.host }}</td>
                                     <td>{{ i.user }}</td>
                                     <td>{{ i.action_ip }}</td>
                                     <td>{{ i.audit_time|date:"Y-m-d H:i:s" }}</td>

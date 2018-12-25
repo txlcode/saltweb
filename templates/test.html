@@ -1,0 +1,43 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+    <script src="https://cdn.bootcss.com/jquery/1.12.2/jquery.min.js"></script>
+<script type="text/javascript">
+function fn(){
+    var select=document.getElementById("city");
+    var c=select.value;
+    var area=document.getElementById("area");
+    $.ajax({url: '/deploy/get_modules_func',
+    success:function (res) {
+        funs = res.list
+    }})
+    var result = funs.filter(function (v) {
+        if(v.modules == c) {
+            return v
+        }
+    })
+    var html = result.reduce(function (acc, v) {
+       return  acc += '<option value="'+v.func+'">'+v.func+'</option>'
+    }, '')
+    $('#area').empty(html)
+    $('#area').append(html)
+};
+    $.ajax({url: '/deploy/get_modules_func',
+    success:function (res) {
+        funs = res.list
+    }})
+</script>
+</head>
+<body>
+<select id="city" onchange="fn()">
+    {% for i in all_logs %}
+        <option value="{{i.modules}}">{{i.modules}}</option>
+    {% endfor %}
+</select>
+<select id="area">
+
+</select>
+</body>
+
+</html>

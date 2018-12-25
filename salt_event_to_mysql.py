@@ -28,13 +28,17 @@ for eachevent in event.iter_events(full=True):
                 continue
             #dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             sql = '''INSERT INTO `deploy_salt_event_returns`
-                (`fun`, `jid`, `fanhui`, `node`, `success`, `full_ret`,`alter_time` )
+                (`fun`, `jid`, `fanhui`, `node`, `success`, `full_ret`,`alter_time`)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)'''
-            cursor.execute(sql, (ret['fun'], ret['jid'],
-                                 json.dumps(ret['return']), ret['id'],
-                                 ret['success'], json.dumps(ret,indent=4),ret['_stamp']))
-            cursor.execute("COMMIT")
+            try:
+                cursor.execute(sql, (ret['fun'], ret['jid'],
+                                     json.dumps(ret['return']), ret['id'],
+                                     ret['success'], json.dumps(ret,indent=4), ret['_stamp']))
+                conn.commit()
+            except:
+                conn.rollback()
     # Other Event
     else:
         pass
+conn.close()
 

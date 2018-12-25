@@ -44,6 +44,10 @@
                                 </ul>
                                 <div class="clearfix"></div>
                             </div>
+                            <div class="info"><a href="{% url 'insert_mysql' %}" class="btn btn-info btn-sm" role="button"
+                                             {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}
+                                             data-toggle="tooltip" data-placement="right"
+                                             title="刷新Salt主机列表">刷新Salt模块</a></div>
                             <div class="x_content">
                                 <div class="loading"></div>
                                 <div class="tab-content">
@@ -62,14 +66,31 @@
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     {% show_user_group_minions request.user.pk request.user.is_superuser 'multiple' %}
                                                 </div>
-                                            </div>
-                                            <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">远程命令 <span
+                                                <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <input type="text" class="form-control" id="esingle" name="arg"
-                                                           value="{{ arg }}" required="required">
+                                                    <select id="city" onchange="fn()">
+                                                         {% for i in all_logs %}
+                                                        <option value="{{i.modules}}">{{i.modules}}</option>
+                                                    {% endfor %}
+                                                        </select>
+                                                </div>
+                                                <label class="col-md-12 col-sm-12 col-xs-12">函数选择<span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <select id="area">
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="item form-group">
+                                                <label class="col-md-12 col-sm-12 col-xs-12">必要参数 <span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <input type="text" class="form-control" id="esingle" name="args"
+                                                           value="{{ args }}" required="required">
                                                 </div>
                                             </div>
                                             <div class="result panel-group" id="panel-single-ret"></div>
@@ -79,7 +100,7 @@
                                                     {#                                                <input type="submit" name="send" class="btn btn-success" value="提交">#}
                                                     <span class="esingle">
                                                 <a href="#"
-                                                   onclick="remote_exec('panel-single');"
+                                                   onclick="fn1('panel-single');"
                                                    name="panel-single" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -175,6 +196,7 @@
 {% endblock %}
 
 {% block js %}
+    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/bootstrapValidator.min.js"></script>
     <script type="text/javascript" src="/static/js/icheck.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap-modal-vertical.js"></script>
@@ -184,6 +206,89 @@
     {#    <script src="/static/js/salt_result.js"></script>#}
     <script>
     get_group_minion($("#search_group"));
+        var funs
+        $.ajax({url: '/deploy/get_modules_func',
+        success:function (res) {
+            funs = res.list
+        }})
+        function fn(){
+            var select=document.getElementById("city");
+            var c=select.value;
+            var area=document.getElementById("area");
+
+            var result = funs.filter(function (v) {
+                if(v.modules == c) {
+                    return v
+                }
+            })
+            var html = result.reduce(function (acc, v) {
+               return  acc += '<option value="'+v.func+'">'+v.func+'</option>'
+            }, '')
+            $('#area').empty(html)
+            $('#area').append(html)
+        };
+        function fn1(exec_type){
+          var select=document.getElementById("city");
+          var m=select.value;
+          var area=document.getElementById("area");
+          var f=area.value;
+          var fun=m + '.' + f;
+          var objs=document.getElementById("search_single_to")
+          var values = []
+            var isSel=false;
+            $('#search_single_to option').each(function(v,d){
+                isSel = true
+                values.push(d.value)}
+            )
+
+          // for(var i=0;i<objs.length;i++) {
+          //     if (objs[i].checked) {
+          //         isSel = true;
+          //         break;
+          //     }
+          // }
+          if (isSel == false) {
+              alert("请选至少选择一个主机！");
+              return false;
+          }
+          if(exec_type==='panel-single'){
+              var tgt_select = $("#search_single_to option").map(function () {
+                  return $(this).val();
+            }).get().join(',');
+            }else{
+                tgt_select = $("#search_group").val();
+            }
+            var arg = $("#"+ exec_type + " input[name='args']").val();
+            //arg='salt '+ tgt_select +' '+arg+ ' '+ args
+            console.log(tgt_select + "eeeaaa" + arg);
+            $("#" + exec_type + " .result").empty();
+            //debugger
+            $(".loading").show();
+            $.ajax({
+                type: "POST",
+                url: "{% url 'ajax_salt_exec' %}",
+                data: {tgt_select: tgt_select, fun: fun, arg: arg, check_type: exec_type},
+                dataType: "json",
+                success: function (ret) {
+                    $(".loading").hide();
+                    console.log(ret);
+                    $.each(ret, function (i, item) {
+                        let t = i.replace(".", "-");
+                        if(item['retcode']===0 && item['success']===true)
+                            color = '#29dc33';
+                        else
+                            color = '#ff0000';
+                        $("#" + exec_type + " .result").addClass("shell-result").append("<a class=\"collapsed\" data-toggle=\"collapse\" data-parent=\"#" + exec_type + "-ret\"\n" +
+                            "href=\"#" + exec_type + "-" + t + "\"><div style=\"color:#29dc33;\">[soms@" + i + "]$ " + arg + "</div></a>" +
+                            "<div id=\"" + exec_type + "-" + t + "\" class=\"panel-collapse collapse in\">\n" +
+                            "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + item['return'] + "</div></div>");//.replace(/\n/g, "<br />") + "</div></div>");
+                        //$("#panel-single .result").append("<div><label>" + i + "</label><div>" + item + "</div>");
+                    });
+                    $("#jid").val(ret.jid);
+                    $("#exec_type").val(ret.is_group);
+                },
+            });
+        }
 
         $(document).keypress(function (e) {
             if (e.keyCode == 13) {
@@ -205,24 +310,6 @@
         });
 
         function remote_exec(exec_type) {
-            var objs=document.getElementById("search_single_to")
-            var values = []
-            var isSel=false;
-            $('#search_single_to option').each(function(v,d){
-                isSel = true
-                values.push(d.value)}
-            )
-
-          // for(var i=0;i<objs.length;i++) {
-          //     if (objs[i].checked) {
-          //         isSel = true;
-          //         break;
-          //     }
-          // }
-          if (isSel == false) {
-              alert("请选至少选择一个主机！");
-              return false;
-          }
             if(exec_type==='panel-single'){
                          var tgt_select = $("#search_single_to option").map(function () {
                 return $(this).val();

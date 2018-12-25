@@ -87,3 +87,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
+# 上传的文件
+media/salt/fileupload/

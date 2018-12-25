@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^user_perm/dir/manage/(?P<id>\d+)/edit/$', uviews.user_dir_manage, name='dir_edit'),
     url(r'^deploy/key_list/$', dviews.salt_key_list, name='key_list'),
     url(r'^deploy/key_list_import/$', dviews.salt_key_import, name='key_import'),
+    url(r'^deploy/insert_mysql/$', dviews.insert_modules_func_into_mysql, name='insert_mysql'),
     url(r'^deploy/key_manage$', dviews.salt_key_manage, name='key_add'),
     url(r'^deploy/key_manage$', dviews.salt_key_manage, name='key_delete'),
     url(r'^deploy/key_manage$', dviews.salt_key_manage, name='key_flush'),
@@ -51,6 +52,7 @@ urlpatterns = [
     url(r'^deploy/module_manage/$', dviews.salt_module_manage, name='module_manage'),
     url(r'^deploy/remote_execution/$', dviews.salt_remote, name='salt_remote'),
     url(r'^deploy/remote_execution/exec/$', dviews.salt_remote_exec, name='ajax_exec'),
+    url(r'^deploy/remote_execution/salt_exec/$', dviews.salt_remote_salt_exec, name='ajax_salt_exec'),
     url(r'^deploy/advanced_manage/$', dviews.salt_advanced_manage, name='advanced_manage'),
     url(r'^deploy/remote_exec/check_result/$', dviews.salt_ajax_result, name='ajax_result'),
     url(r'^deploy/module_deploy/$', dviews.salt_module_deploy, name='module_deploy'),
@@ -79,4 +81,6 @@ urlpatterns = [
     url(r'^asset/idc/edit/(?P<aid>\d+)/(?P<action>[\w-]+)/$', aviews.idc_asset_manage, name='idc_manage'),
     url(r'^asset/load_city/$', aviews.geo_input, name='load_city'),
     url(r'^{}(?P<path>.*)$'.format(settings.MEDIA_URL[1:]), uviews.protected_serve, {'document_root': settings.MEDIA_ROOT}),
+    url(r'^deploy/get_modules_func/$', dviews.get_modules_func, name='get_modules_func'),
+    url(r'^deploy/salt_remote1/$', dviews.salt_remote1, name='salt_remote1'),
 ]

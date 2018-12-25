@@ -15,6 +15,7 @@ from django.db import models
 # Create your models here.
 
 class Message(models.Model):
+    host = models.CharField(max_length=50,default='localhost',verbose_name=u'节点')
     user = models.CharField(max_length=244, verbose_name=u'用户')
     audit_time = models.DateTimeField(auto_now_add=True, verbose_name=u'时间')
     type = models.CharField(max_length=10, verbose_name=u'类型')

@@ -10,7 +10,7 @@
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404, HttpResponse, JsonResponse
-
+import json
 from django.http import StreamingHttpResponse
 
 from django.contrib.auth.decorators import login_required
@@ -26,7 +26,7 @@ from .forms import *
 # custom function
 from tar_file import make_tar
 from md5 import md5sum
-
+import os
 try:
     import json
 except ImportError:
@@ -694,8 +694,35 @@ def salt_remote_exec(request):
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
 
-        Message.objects.create(type=u'部署管理', user=request.user.first_name, action='远程命令', action_ip=UserIP(request),
+        Message.objects.create(type=u'部署管理',host=tgt_select,user=request.user.first_name, action='远程命令', action_ip=UserIP(request),
                                content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(arg, rst, rst_source))
+        return JsonResponse(rst)
+    else:
+        raise Http404
+
+@login_required
+def salt_remote_salt_exec(request):
+    '''
+    salt远程命令执行
+    '''
+    if request.is_ajax and request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
+        result = ''
+        tgt_select = request.POST.get('tgt_select')
+        check_type = request.POST.get('check_type')
+        fun = request.POST.get('fun')
+        arg = request.POST.get('arg')
+        if check_type == 'panel-single':
+            expr_form = 'list'
+        else:
+            expr_form = 'nodegroup'
+            tgt_select = SaltGroup.objects.get(pk=tgt_select).groupname
+        sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                       password=settings.SALT_API['password'])
+        jid = sapi.remote_execution(tgt_select, fun, arg, expr_form)
+        rst_source = sapi.salt_runner(jid)
+        rst = rst_source['info'][0]['Result']
+        #Message.objects.create(type=u'部署管理', user=request.user.first_name, action='salt命令', action_ip=UserIP(request),
+        #                       content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(fun+' '+arg, rst1, rst_source))
         return JsonResponse(rst)
     else:
         raise Http404
@@ -1325,3 +1352,43 @@ def ajax_user_groups(request):
                    User.objects.get(pk=request.user.pk).group.values('pk', 'group_name')}
 
     return JsonResponse(user_groups)
+@login_required
+def insert_modules_func_into_mysql(request):
+    if request.user.is_superuser:
+        sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                       password=settings.SALT_API['password'])
+        t = sapi.get_modules_fun('svn', 'sys.list_functions')['return'][0]['svn']
+        # 删除数据库数据，方便插入
+        Models_fun.objects.all().delete()
+        for name in t:
+            modules=name.split('.')[0]
+            func=name.split('.')[1]
+            Models_fun.objects.create(modules=modules, func=func)
+    return redirect('salt_remote1')
+@login_required
+def salt_remote1(request):
+    modules_list=Models_fun.objects.values('modules').distinct()
+    return render(request, 'salt_remote_salt_exec.html',{'all_logs': modules_list})
+@login_required
+def get_modules_func(request):
+    if request.user.is_superuser:
+        data = {}
+        book = Models_fun.objects.values('modules','func')
+        data['list'] = list(book)
+        return JsonResponse(data)
+        #with open('templates/modules_fun_list.html', 'w+') as f:
+        #    modules_list = {i['modules'] for i in Models_fun.objects.values('modules')}
+        #    for m in modules_list:
+        #        func_list=[i['func'] for i in Models_fun.objects.filter(modules=m).values('func')]
+        #        result='case'+ ' '+'"'+ m + '"'+': area.innerHTML="'
+        #        for fun in func_list:
+        #            result=result+'<option value="'+fun+'">'+ fun + '</option>'
+        #        f.write(result +'";break;'+'\n')
+        #f.close()
+
+
+
+
+
+
+            #return render(request, 'salt_remote_salt_exec.html',{'modules_list': modules_list, 'func_dict': func_dict})

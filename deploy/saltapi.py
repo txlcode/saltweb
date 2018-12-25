@@ -123,8 +123,10 @@ class SaltAPI(object):
         '''
         异步执行远程命令
         '''
-
-        params = {'client': 'local_async', 'tgt': tgt, 'fun': fun, 'arg': arg, 'expr_form': expr_form}
+        if arg:
+            params = {'client': 'local_async', 'tgt': tgt, 'fun': fun, 'arg': arg, 'expr_form': expr_form}
+        else:
+            params = {'client': 'local_async', 'tgt': tgt, 'fun': fun, 'expr_form': expr_form}
         obj = urllib.urlencode(params)
         self.token_id()
         content = self.postRequest(obj)
@@ -154,6 +156,13 @@ class SaltAPI(object):
         content = self.postRequest(obj)
         ret = content['return'][0]
         return ret
+    def remote_localexec1(self,tgt,fun,arg):
+        params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'arg': arg}
+        obj = urllib.urlencode(params)
+        self.token_id()
+        content = self.postRequest(obj)
+        ret = content['return'][0]
+        return ret
 
     def salt_state(self,tgt,arg,expr_form):
         '''
@@ -165,6 +174,12 @@ class SaltAPI(object):
         content = self.postRequest(obj)
         ret = content['return'][0]
         return ret
+    def get_modules_fun(self,tgt,fun):
+        params = {'client': 'local', 'tgt': tgt, 'fun': fun}
+        obj = urllib.urlencode(params)
+        self.token_id()
+        content = self.postRequest(obj)
+        return content
 
     def project_manage(self,tgt,fun,arg1,arg2,arg3,arg4,arg5,expr_form):
         '''
@@ -257,7 +272,10 @@ class SaltAPI(object):
         return ret
 
 def main():
-    sapi = SaltAPI(url='https://127.0.0.1:8000',username='saltapi',password='password')
-
+    sapi = SaltAPI(url='https://172.29.3.66:8000',username='saltapi',password='123456')
+    t=sapi.salt_runner(20181225103625716864)
+    t=t['info'][0]['Result']
+    print t
 if __name__ == '__main__':
     main()
+
