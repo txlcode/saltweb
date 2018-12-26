@@ -273,9 +273,8 @@ class SaltAPI(object):
 
 def main():
     sapi = SaltAPI(url='https://172.29.3.66:8000',username='saltapi',password='123456')
-    t=sapi.salt_runner(20181225103625716864)
-    t=t['info'][0]['Result']
-    print t
+    jid = sapi.remote_execution(tgt_select, fun, arg, expr_form)
+    print jid
 if __name__ == '__main__':
     main()
 

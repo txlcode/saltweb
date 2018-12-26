@@ -97,7 +97,7 @@
                                             <div class="ln_solid"></div>
                                             <div class="form-group">
                                                 <div class="">
-                                                    {#                                                <input type="submit" name="send" class="btn btn-success" value="提交">#}
+                                                    {#<input type="submit" name="send" class="btn btn-success" value="提交">#}
                                                     <span class="esingle">
                                                 <a href="#"
                                                    onclick="fn1('panel-single');"
@@ -126,15 +126,32 @@
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     {% show_user_group_groups request.user.pk request.user.is_superuser %}
                                                 </div>
-                                            </div>
-                                            <div id="group_minions" name="group_minions" class="item form-group" style="padding-left: 10px;"></div>
-                                            <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">远程命令 <span
+                                                </div>
+                                                <div id="group_minions" name="group_minions" class="item form-group" style="padding-left: 10px;"></div>
+                                            <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <input type="text" class="form-control" id="egroup" name="arg"
-                                                           value="{{ arg }}">
+                                                    <select id="module" onchange="fn_group()">
+                                                         {% for i in all_logs %}
+                                                        <option value="{{i.modules}}">{{i.modules}}</option>
+                                                    {% endfor %}
+                                                        </select>
+                                                </div>
+                                                <label class="col-md-12 col-sm-12 col-xs-12">函数选择<span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <select id="fun">
+                                                    </select>
+                                                </div>
+                                            <div class="item form-group">
+                                                <label class="col-md-12 col-sm-12 col-xs-12">必要参数 <span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <input type="text" class="form-control" id="egroup" name="arg_group"
+                                                           value="{{ arg_group }}" required="required">
                                                 </div>
                                             </div>
                                             <div class="result panel-group" id="panel-group-ret"></div>
@@ -143,11 +160,12 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec('panel-group');"
+                                                   onclick="fn_group1('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
                                                     {#                                                       class="btn btn-info">查看结果</a>#}
+                                                </div>
                                                 </div>
                                             </div>
                                             </fieldset>
@@ -227,6 +245,23 @@
             $('#area').empty(html)
             $('#area').append(html)
         };
+        function fn_group(){
+            var select=document.getElementById("module");
+            var c=select.value;
+            var area=document.getElementById("fun");
+            var result = funs.filter(function (v) {
+                if(v.modules == c) {
+                    return v
+                }
+            })
+            console.log(result);
+            var html = result.reduce(function (acc, v) {
+               return  acc += '<option value="'+v.func+'">'+v.func+'</option>'
+            }, '')
+            console.log(html)
+            $('#fun').empty(html)
+            $('#fun').append(html)
+        };
         function fn1(exec_type){
           var select=document.getElementById("city");
           var m=select.value;
@@ -288,6 +323,72 @@
                     $("#exec_type").val(ret.is_group);
                 },
             });
+        }
+        function fn_group1(exec_type) {
+            if(exec_type==='panel-single'){
+                var tgt_select = $("#search_single_to option").map(function () {
+                return $(this).val();
+            }).get().join(',');
+            }else{
+                var gid = $("#search_group").val();
+            }
+            var select=document.getElementById("module");
+            var m=select.value;
+            var area=document.getElementById("fun");
+            var f=area.value;
+            var fun=m + '.' + f;
+            var arg = $("#"+ exec_type + " input[name='arg_group']").val();
+            var objs=document.getElementById("search_group")
+            var values = []
+                var isSel=false;
+                $('#search_group option').each(function(v,d){
+                    isSel = true
+                    values.push(d.value)}
+                )
+
+            if (isSel == false) {
+              alert("请选至少选择一个主机！");
+              return false;
+            }
+
+            $("#" + exec_type + " .result").empty();
+            $(".loading").show();
+            $.ajax({
+                    type: "POST",
+                    url: "{% url 'get_minions' %}",
+                    data: {gid:gid},
+                    dataType: "json",
+                    success: function (ret) {
+                        console.log(ret);
+                        $.each(ret, function (i, item) {
+                            $.ajax({
+                                    type: "POST",
+                                    url: "{% url 'ajax_salt_exec' %}",
+                                    data: {tgt_select: i, fun: fun, arg: arg, check_type: 'panel-single'},
+                                    dataType: "json",
+                                    success: function (rst) {
+                                        $(".loading").hide();
+                                        console.log(rst);
+                                        $.each(rst, function (j, item1) {
+                                            let t = j.replace(".", "-");
+                                            if(item1['retcode']===0 && item1['success']===true)
+                                                color = '#29dc33';
+                                            else
+                                                color = '#ff0000';
+                                            $("#" + exec_type + " .result").addClass("shell-result").append("<a class=\"collapsed\" data-toggle=\"collapse\" data-parent=\"#" + exec_type + "-ret\"\n" +
+                                                "href=\"#" + exec_type + "-" + t + "\"><div style=\"color:#29dc33;\">[soms@" + j + "]$ " + arg + "</div></a>" +
+                                                "<div id=\"" + exec_type + "-" + t + "\" class=\"panel-collapse collapse in\">\n" +
+                                                "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + item1['return'] + "</div></div>");
+                                            //$("#panel-single .result").append("<div><label>" + i + "</label><div>" + item + "</div>");
+                                        });
+                                        $("#jid").val(rst.jid);
+                                        $("#exec_type").val(rst.is_group);
+                                    },
+                                });
+
+                        })
+                    }
+                })
         }
 
         $(document).keypress(function (e) {

@@ -122,7 +122,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec('panel-group');"
+                                                   onclick="remote_exec_group('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -224,7 +224,7 @@
               return false;
           }
             if(exec_type==='panel-single'){
-                         var tgt_select = $("#search_single_to option").map(function () {
+                var tgt_select = $("#search_single_to option").map(function () {
                 return $(this).val();
             }).get().join(',');
             }else{
@@ -259,9 +259,62 @@
                 },
             });
         }
+        function remote_exec_group(exec_type) {
+            if(exec_type==='panel-single'){
+                var tgt_select = $("#search_single_to option").map(function () {
+                return $(this).val();
+            }).get().join(',');
+            }else{
+                var gid = $("#search_group").val();
+            }
+            var arg = $("#"+ exec_type + " input[name='arg']").val();
+            console.log(gid + "eeeaaa" + arg);
+            $("#" + exec_type + " .result").empty();
+            $(".loading").show();
+            $.ajax({
+                    type: "POST",
+                    url: "{% url 'get_minions' %}",
+                    data: {gid:gid},
+                    dataType: "json",
+                    success: function (ret) {
+                        console.log(ret);
+                        $.each(ret, function (i, item) {
+                            console.log(i);
+                            console.log(arg);
+                            console.log(exec_type);
+                            $.ajax({
+                                    type: "POST",
+                                    url: "{% url 'ajax_exec' %}",
+                                    data: {tgt_select: i, arg: arg, check_type: 'panel-single'},
+                                    dataType: "json",
+                                    success: function (rst) {
+                                        $(".loading").hide();
+                                        console.log(rst);
+                                        $.each(rst, function (j, item1) {
+                                            let t = j.replace(".", "-");
+                                            if(item1['retcode']===0 && item1['success']===true)
+                                                color = '#29dc33';
+                                            else
+                                                color = '#ff0000';
+                                            $("#" + exec_type + " .result").addClass("shell-result").append("<a class=\"collapsed\" data-toggle=\"collapse\" data-parent=\"#" + exec_type + "-ret\"\n" +
+                                                "href=\"#" + exec_type + "-" + t + "\"><div style=\"color:#29dc33;\">[soms@" + j + "]$ " + arg + "</div></a>" +
+                                                "<div id=\"" + exec_type + "-" + t + "\" class=\"panel-collapse collapse in\">\n" +
+                                                "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + item1['return'].replace(/\n/g, "<br />") + "</div></div>");
+                                            //$("#panel-single .result").append("<div><label>" + i + "</label><div>" + item + "</div>");
+                                        });
+                                        $("#jid").val(rst.jid);
+                                        $("#exec_type").val(rst.is_group);
+                                    },
+                                });
+
+                        })
+                    }
+                })
+        }
 
         function get_group_minion(obj) {
             var gid = $(obj).val();
+            console.log(gid);
             $("#group_minions").empty();
             if (gid !== '') {
                 $.ajax({

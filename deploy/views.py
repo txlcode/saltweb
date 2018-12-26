@@ -639,6 +639,7 @@ def salt_group_minions(request):
             gid = request.POST.get('gid', None)
             minions = SaltGroup.objects.get(pk=gid).minions.all()
             ret = {i.hostname: i.alive for i in minions}
+            #return HttpResponse(ret)
             return JsonResponse(ret)
     else:
         raise Http404
@@ -693,7 +694,6 @@ def salt_remote_exec(request):
         jid = sapi.remote_execution(tgt_select, 'cmd.run', arg, expr_form)
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
-
         Message.objects.create(type=u'部署管理',host=tgt_select,user=request.user.first_name, action='远程命令', action_ip=UserIP(request),
                                content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(arg, rst, rst_source))
         return JsonResponse(rst)
