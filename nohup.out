@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "./salt_event_to_mysql.py", line 39, in <module>
+    conn.rollback()
+_mysql_exceptions.OperationalError: (2006, 'MySQL server has gone away')
+Traceback (most recent call last):
+  File "salt_event_to_mysql.py", line 39, in <module>
+    conn.rollback()
+_mysql_exceptions.OperationalError: (2006, 'MySQL server has gone away')
+Traceback (most recent call last):
+  File "salt_event_to_mysql.py", line 21, in <module>
+    for eachevent in event.iter_events(full=True):
+  File "/usr/lib/python2.6/site-packages/salt/utils/event.py", line 439, in iter_events
+    data = self.get_event(tag=tag, full=full)
+  File "/usr/lib/python2.6/site-packages/salt/utils/event.py", line 410, in get_event
+    ret = self._get_event(wait, tag, tags_regex)
+  File "/usr/lib/python2.6/site-packages/salt/utils/event.py", line 351, in _get_event
+    socks = dict(self.poller.poll(wait * 1000))
+  File "/usr/lib64/python2.6/site-packages/zmq/sugar/poll.py", line 101, in poll
+    return zmq_poll(self.sockets, timeout=timeout)
+  File "_poll.pyx", line 115, in zmq.backend.cython._poll.zmq_poll (zmq/backend/cython/_poll.c:1678)
+  File "checkrc.pxd", line 11, in zmq.backend.cython.checkrc._check_rc (zmq/backend/cython/_poll.c:1879)
+KeyboardInterrupt

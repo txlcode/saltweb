@@ -96,6 +96,31 @@ def show_user_group_minions(pk, user_type, list_type):
 
 register.inclusion_tag('tag_user_group_minions.html')(show_user_group_minions)
 
+def show_customize_modules(pk, user_type, list_type):
+    '''
+    远程命令、模块部署及文件上传中显示主机列表
+    '''
+    if user_type:
+        tgt_list = [i['modules'] for i in Customize_modules.objects.all().values('modules')]
+    else:
+        tgt_list = [i['modules'] for g in User.objects.get(pk=pk).group.all() for i in
+                    SaltHost.objects.filter(user_group=g).values('modules')]
+    return {'tgt_list':sorted(list(set(tgt_list))), 'list_type':list_type}
+
+register.inclusion_tag('tag_customize_modules.html')(show_customize_modules)
+
+def show_customize_modules1(pk, user_type, list_type):
+    '''
+    远程命令、模块部署及文件上传中显示主机列表
+    '''
+    if user_type:
+        tgt_list = [i['modules'] for i in Customize_modules.objects.all().values('modules')]
+    else:
+        tgt_list = [i['modules'] for g in User.objects.get(pk=pk).group.all() for i in
+                    SaltHost.objects.filter(user_group=g).values('modules')]
+    return {'tgt_list':sorted(list(set(tgt_list))), 'list_type':list_type}
+
+register.inclusion_tag('tag_customize_modules1.html')(show_customize_modules1)
 
 def show_user_group_groups(pk, user_type):
     '''

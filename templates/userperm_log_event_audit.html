@@ -36,6 +36,7 @@
                                     <th>详细</th>
                                     <th>节点</th>
                                     <th>操作命令</th>
+                                    <th>操作参数</th>
                                     <th>操作状态</th>
                                     <th>操作时间</th>
                                     <th>JID</th>
@@ -49,6 +50,7 @@
                                     </td>
                                     <td>{{ i.node }}</td>
                                     <td>{{ i.fun }}</td>
+                                    <td>{{ i.fun_args }}</td>
                                     <td>{% if i.success %}成功{% else %}失败{% endif %}</td>
                                     <td>{{ i.alter_time | date:"Y-m-d H:i:s"  }}</td>
                                     <td>{{ i.jid }}</td>

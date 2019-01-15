@@ -1,0 +1,21 @@
+<div id="step-single" class="">
+        <div class="row">
+        <div class="col-xs-5">
+            <select name="from[]" id="multiselect1" class="form-control" size="8" multiple="multiple">
+                 {% for tgt in tgt_list %}
+                        <option value="{{ tgt }}">{{ tgt }}</option>
+                    {% endfor %}
+            </select>
+        </div>
+        <div class="col-xs-2">
+            <button type="button" id="multiselect1_rightAll" class="btn btn-block"><i class="fa fa-forward"></i></button>
+            <button type="button" id="multiselect1_rightSelected" class="btn btn-block"><i class="fa fa-chevron-right"></i></button>
+            <button type="button" id="multiselect1_leftSelected" class="btn btn-block"><i class="fa fa-chevron-left"></i></button>
+            <button type="button" id="multiselect1_leftAll" class="btn btn-block"><i class="fa fa-backward"></i></button>
+        </div>
+
+        <div class="col-xs-5">
+            <select name="to[]" id="multiselect1_to" class="form-control" size="8" multiple="multiple"></select>
+        </div>
+    </div>
+    </div>

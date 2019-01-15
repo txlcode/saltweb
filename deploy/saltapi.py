@@ -148,7 +148,23 @@ class SaltAPI(object):
         content = self.postRequest(obj)
         jid = content['return'][0]['jid']
         return jid
-
+    def remote_module1(self,tgt,fun,arg,expr_form,arg1=''):
+        '''
+        异步部署模块
+        '''
+        params = {'client': 'local_async', 'tgt': tgt, 'fun': fun, 'arg': arg, 'expr_form': expr_form}
+        #设置pillar
+        #kwarg = {'SALTSRC': 'PET'}
+        #params2 = {'arg': 'pillar={}'.format(kwarg)}
+        obj = urllib.urlencode(params)
+        def canshu(arg):
+            params2 = {'arg':arg}
+            return urllib.urlencode(params2)
+        if arg1:
+            obj = obj + '&' + canshu(arg1)
+        self.token_id()
+        content = self.postRequest(obj)
+        return content
     def remote_localexec(self,tgt,fun,arg,expr_form):
         params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'arg': arg, 'expr_form': expr_form}
         obj = urllib.urlencode(params)
@@ -273,8 +289,15 @@ class SaltAPI(object):
 
 def main():
     sapi = SaltAPI(url='https://172.29.3.66:8000',username='saltapi',password='123456')
-    jid = sapi.remote_execution(tgt_select, fun, arg, expr_form)
+    arg='mysql,nginx'
+    arg1='test=true'
+    print arg
+    jid1 = sapi.remote_module1('slave1', 'state.sls', arg, 'nodegroup', arg1)
+    jid = jid1['return'][0]['jid']
+    rst_source = sapi.salt_runner(jid)
+    rst = rst_source['info'][0]['Result']
     print jid
+    print rst_source
 if __name__ == '__main__':
     main()
 

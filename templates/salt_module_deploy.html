@@ -21,16 +21,14 @@
                             <li>
                                 <a href="#panel-group" data-toggle="tab">批量部署</a>
                             </li>
-                            {% if perms.deploy.edit_module %}
-                                <li>
-                                    <a href="{% url 'module_list' %}">模块管理</a>
-                                </li>
-                            {% endif %}
                         </ul>
 
                         <div class="x_panel" style="border-top:none;">
                             <div class="x_title">
-                                <h2>模块部署 </h2>
+                                <div class="info"><a href="{% url 'flush_module' %}" class="btn btn-success" role="button"
+                                             {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}
+                                             data-toggle="tooltip" data-placement="right"
+                                             title="刷新自定义模块">刷新自定义模块</a></div>
                                 <ul class="nav navbar-right panel_toolbox">
                                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                     </li>
@@ -69,11 +67,20 @@
                                                 </div>
                                             </div>
                                             <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">安装模块 <span
+                                                <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    {% show_modules request.user request.user.is_superuser %}
+                                                    {% show_customize_modules request.user.pk request.user.is_superuser 'multiple' %}
+                                                </div>
+                                             </div>
+                                                <div class="item form-group">
+                                                <label class="col-md-12 col-sm-12 col-xs-12">必要参数1 <span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <input type="text" class="form-control" id="esingle" name="args"
+                                                           value="{{ args }}" required="required">
                                                 </div>
                                             </div>
                                             <div name="remark" class="item form-group"></div>
@@ -114,13 +121,21 @@
                                             <div id="group_minions" name="group_minions" class="item form-group"
                                                  style="padding-left: 10px;"></div>
                                             <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">安装模块 <span
+                                                <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    {% show_modules request.user request.user.is_superuser %}
+                                                    {% show_customize_modules1 request.user.pk request.user.is_superuser 'multiple' %}
                                                 </div>
-                                            </div>
+                                            <div class="item form-group">
+                                                <label class="col-md-12 col-sm-12 col-xs-12">必要参数 <span
+                                                        class="required">*</span>
+                                                </label>
+                                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <input type="text" class="form-control" id="egroup" name="arg_group"
+                                                           value="{{ arg_group }}" required="required">
+                                                </div>
+                                                </div>
                                             <div name="remark" class="item form-group"></div>
                                             <div class="result panel-group" id="panel-group-ret"></div>
                                             <div class="ln_solid"></div>
@@ -128,7 +143,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec('panel-group');"
+                                                   onclick="remote_exec1('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -211,25 +226,65 @@
             }
         });
 
+         $('#multiselect').multiselect({
+             search: {
+                left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            },
+            fireSearch: function (value) {
+                return value.length > 0;
+            }
+         });
+         $('#multiselect1').multiselect({
+             search: {
+                left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+                right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            },
+            fireSearch: function (value) {
+                return value.length > 0;
+            }
+         });
+
         function remote_exec(exec_type) {
             if (exec_type === 'panel-single') {
                 var tgt_select = $("#search_single_to option").map(function () {
                     return $(this).val();
                 }).get().join(',');
+                var arg = $("#multiselect_to option").map(function () {
+                    return $(this).val();
+                }).get().join(',');
             } else {
                 tgt_select = $("#search_group").val();
+                var arg = $("#multiselect1_to option").map(function () {
+                    return $(this).val();
+                }).get().join(',');
             }
-            var arg = $("#" + exec_type + " select[name='module_list']").val();
             /*var arg = $("#" + exec_type + " select[name='module_list'] option").map(function () {
                 return $(this).val();
             }).get().join(',');*/
-            console.log(tgt_select + "eeeaaa" + arg);
+            var values = []
+                var isSel=false;
+                $('#search_single_to option').each(function(v,d){
+                    isSel = true
+                    values.push(d.value)}
+                )
+
+            if (isSel == false) {
+              alert("请至少选择一个主机！");
+              return false;
+            }
+            else {
+                alert("请到日志栏目查看执行过程！");
+            }
+            var select=document.getElementById("esingle");
+            var arg1=select.value;
+            console.log(tgt_select + "eeeaaa" + arg+ ' ' +arg1)
             $("#" + exec_type + " .result").empty();
             $(".loading").show();
             $.ajax({
                 type: "POST",
                 url: "{% url 'ajax_deploy' %}",
-                data: {tgt_select: tgt_select, arg: arg, check_type: exec_type},
+                data: {tgt_select: tgt_select, arg: arg, arg1: arg1,check_type: exec_type},
                 dataType: "json",
                 success: function (ret) {
                     $(".loading").hide();
@@ -251,7 +306,62 @@
                 },
             });
         }
-
+        function remote_exec1(exec_type) {
+            var groupid = $("#search_group").val();
+            var arg = $("#multiselect1_to option").map(function () {
+                    return $(this).val();
+                }).get().join(',');
+            /*var arg = $("#" + exec_type + " select[name='module_list'] option").map(function () {
+                return $(this).val();
+            }).get().join(',');*/
+            if (groupid == '请选择') {
+              alert("请至少选择一个主机组！");
+              return false;
+            }
+            else {
+                alert("请到日志栏目查看执行过程！");
+            }
+            var select=document.getElementById("egroup");
+            var arg1=select.value;
+            console.log(groupid + "eeeaaa" + arg+ ' ' +arg1);
+            $("#" + exec_type + " .result").empty();
+            $(".loading").show();
+            $.ajax({
+                    type: "POST",
+                    url: "{% url 'get_minions' %}",
+                    data: {gid:groupid},
+                    dataType: "json",
+                    success: function (ret) {
+                        console.log(ret);
+                        $.each(ret, function (i, item) {
+                            $.ajax({
+                                type: "POST",
+                                url: "{% url 'ajax_deploy' %}",
+                                data: {tgt_select: i, arg: arg, arg1: arg1, check_type: exec_type},
+                                dataType: "json",
+                                success: function (ret) {
+                                    $(".loading").hide();
+                                    console.log(ret);
+                                    $.each(ret, function (i, item) {
+                                        let t = i.replace(".", "-");
+                                        if (item['retcode'] === 0 && item['success'] === true)
+                                            color = '#29dc33';
+                                        else
+                                            color = '#ff0000';
+                                        $("#" + exec_type + " .result").addClass("shell-result").append("<a class=\"collapsed\" data-toggle=\"collapse\" data-parent=\"#" + exec_type + "-ret\"\n" +
+                                            "href=\"#" + exec_type + "-" + t + "\"><div style=\"color:#29dc33;\">[soms@" + i + "]$ </div></a>" +
+                                            "<div id=\"" + exec_type + "-" + t + "\" class=\"panel-collapse collapse in\">\n" +
+                                            "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + json2yaml(item['return']) + "</div></div>");
+                                        //$("#panel-single .result").append("<div><label>" + i + "</label><div>" + item + "</div>");
+                                    });
+                                    $("#jid").val(ret.jid);
+                                    $("#exec_type").val(ret.is_group);
+                                },
+                            });
+                        });
+                    }
+            });
+        }
         function get_group_minion(obj) {
             var gid = $(obj).val();
             if(gid === null){

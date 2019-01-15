@@ -530,7 +530,7 @@ def salt_module_list(request):
     '''
     if request.user.has_perm('deploy.view_deploy'):
         if request.user.is_superuser:
-            module_list = ModuleUpload.objects.all()
+            module_list = Customize_modules.objects.all()
         else:
             # 获取用户创建或公开模块
             module_visible_list = [{'pk': i.pk, 'name': i.name, 'module': i.module, 'remark': i.remark, 'user': i.user}
@@ -749,26 +749,26 @@ def salt_ajax_module_deploy(request):
     if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
         result = ''
         tgt_select = request.POST.get('tgt_select')
-        check_type = request.POST.get('check_type')
-        arg = request.POST.getlist('arg[]')
-        if check_type == 'panel-single':
-            expr_form = 'list'
-        else:
-            expr_form = 'nodegroup'
-            tgt_select = SaltGroup.objects.get(pk=tgt_select).groupname
-
+        #check_type = request.POST.get('check_type')
+        arg1 = request.POST.get('arg1')
+        arg = request.POST.get('arg')
+        expr_form = 'list'
         sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
-                       password=settings.SALT_API['password'])
-        module = ModuleUpload.objects.filter(pk=arg[0])[0]
-        src = '/'.join(module.module.split('.')[:-1])
-        jid = sapi.remote_module(tgt_select, 'state.sls', 'module.{}.{}'.format(module.module_path, module.module),
-                                 {'SALTSRC': 'module/{}'.format(module.module_path)}, expr_form)
+                     password=settings.SALT_API['password'])
+        jid = sapi.remote_module1(tgt_select, 'state.sls', arg, expr_form, arg1)
+        jid = jid['return'][0]['jid']
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
-
-        Message.objects.create(type=u'部署管理', user=request.user.first_name, action=jid, action_ip=UserIP(request),
-                               content=u'模块部署 [%s]<br />原始输出：<br />%s' % (module, rst))
         return JsonResponse(rst)
+       #src = '/'.join(module.module.split('.')[:-1])
+       #jid = sapi.remote_module(tgt_select, 'state.sls', 'module.{}.{}'.format(module.module_path, module.module),
+       #                         {'SALTSRC': 'module/{}'.format(module.module_path)}, expr_form)
+       #rst_source = sapi.salt_runner(jid)
+       #rst = rst_source['info'][0]['Result']
+
+       #Message.objects.create(type=u'部署管理', user=request.user.first_name, action=jid, action_ip=UserIP(request),
+       #                       content=u'模块部署 [%s]<br />原始输出：<br />%s' % (module, rst))
+       #return JsonResponse(rst)
     else:
         raise Http404
 
@@ -1120,6 +1120,18 @@ def salt_task_check(request):
 
 
 @login_required
+def salt_task_stop(request):
+    if request.GET.has_key('stop'):
+        jid = request.GET.get('jid')
+        tgt = request.GET.get('tgt')
+        import subprocess
+        p = subprocess.Popen("salt %s saltutil.term_job %s" %(tgt,jid),shell=True, stdout=subprocess.PIPE)
+        out = p.stdout.readlines()
+    return redirect('task_running')
+    #return HttpResponse(jid)
+    #return HttpResponse(json.dumps('Job %s killed.' % jid))
+
+@login_required
 def salt_task_running(request):
     '''
     获取运行中的任务
@@ -1152,7 +1164,29 @@ def salt_task_running(request):
         return HttpResponse(json.dumps('Job %s killed.' % jid))
 
     return render(request, 'salt_task_running_list.html', {})
-
+@login_required
+def salt_task_running1(request):
+    '''
+    获取运行中的任务
+    '''
+    ret = []
+    sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                   password=settings.SALT_API['password'])
+    rst = sapi.salt_running_jobs()
+    for k, v in rst.items():
+        dict = {}
+        dict['jid'] = k
+        dict['tgt'] = v['Target']
+        dict['func'] = v['Function']
+        #dict['tgt_type'] = v['Target-type']
+        #dict['running'] = v['Arguments'][0].replace(';echo ":::"$?', '')
+        str_tgt = ''
+        for i in v['Running']:
+            for m, n in i.items():
+                str_tgt = str_tgt + m + ':' + str(n) + ','
+        dict['tgt_pid'] = str_tgt
+        ret.append(dict)
+    return render(request, 'salt_task_running_list.html', {'dict':ret})
 
 @login_required
 def project_list(request):
@@ -1385,6 +1419,25 @@ def get_modules_func(request):
         #            result=result+'<option value="'+fun+'">'+ fun + '</option>'
         #        f.write(result +'";break;'+'\n')
         #f.close()
+@login_required
+def salt_flush_module(request):
+    if request.user.is_superuser:
+        path='/srv/salt/'
+        lists = os.listdir(path)
+        lists.remove('_grains')
+        lists.remove('_modules')
+        lists.remove('.git')
+        Customize_modules.objects.all().delete()
+        for f in lists:
+            if os.path.isfile(os.path.join(path,f)):
+                lists.remove(f)
+                continue
+            Customize_modules.objects.create(modules=f)
+        return redirect('module_deploy')
+
+
+
+
 
 
 

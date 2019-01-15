@@ -19,6 +19,15 @@ from deploy.storage import FileStorage
 from deploy.soms_lib import get_token
 
 
+class Customize_modules(models.Model):
+    modules = models.CharField(max_length=50)
+    def __str__(self):
+        return self.modules
+
+    class Meta:
+        ordering = ['modules']
+
+
 
 class Models_fun(models.Model):
     modules = models.CharField(max_length=50)
@@ -44,7 +53,7 @@ class salt_event_returns(models.Model):
     jid = models.CharField(max_length=255,db_index=True)
     fanhui = models.TextField()
     node = models.CharField(max_length=255,db_index=True)
-    #fun_args1 = models.CharField(max_length=255,blank=True)
+    fun_args = models.CharField(max_length=255,blank=True)
     success = models.CharField(max_length=10)
     full_ret = models.TextField()
     alter_time = models.DateTimeField(default = timezone.now)

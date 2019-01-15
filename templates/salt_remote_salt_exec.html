@@ -44,7 +44,7 @@
                                 </ul>
                                 <div class="clearfix"></div>
                             </div>
-                            <div class="info"><a href="{% url 'insert_mysql' %}" class="btn btn-info btn-sm" role="button"
+                            <div class="info"><a href="{% url 'insert_mysql' %}" class="btn btn-success" role="button"
                                              {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}
                                              data-toggle="tooltip" data-placement="right"
                                              title="刷新Salt主机列表">刷新Salt模块</a></div>
