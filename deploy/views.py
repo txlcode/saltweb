@@ -1391,7 +1391,7 @@ def insert_modules_func_into_mysql(request):
     if request.user.is_superuser:
         sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
                        password=settings.SALT_API['password'])
-        t = sapi.get_modules_fun('svn', 'sys.list_functions')['return'][0]['svn']
+        t = sapi.get_modules_fun('soms', 'sys.list_functions')['return'][0]['soms']
         # 删除数据库数据，方便插入
         Models_fun.objects.all().delete()
         for name in t:

@@ -90,10 +90,10 @@ DATABASES = {
         #'NAME': os.path.join(BASE_DIR, 'soms.db'),
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'salt',
-        'HOST': '172.29.3.64',
+        'HOST': '10.24.238.20',
         'USER': 'salt',
         'PORT': 3306,
-        'PASSWORD': '123456',
+        'PASSWORD': 'salt_123',
     }
 }
 

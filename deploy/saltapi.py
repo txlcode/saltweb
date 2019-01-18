@@ -12,7 +12,9 @@ import sys
 import urllib2, urllib
 
 if sys.version_info < (2, 7, 9):
+    import ssl
     context = None
+    ssl._create_default_https_context = ssl._create_unverified_context
 else:
     import ssl
     #ssl._create_default_https_context = ssl._create_unverified_context

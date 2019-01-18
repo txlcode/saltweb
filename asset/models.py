@@ -20,7 +20,7 @@ class ServerAsset(models.Model):
     hostname = models.CharField(max_length=50, verbose_name=u'主机名')
     manufacturer = models.CharField(max_length=20, blank=True, verbose_name=u'厂商')
     productname = models.CharField(max_length=100, blank=True, verbose_name=u'型号')
-    sn = models.CharField(max_length=20, blank=True, verbose_name=u'序列号')
+    sn = models.CharField(max_length=100, blank=True, verbose_name=u'序列号')
     cpu_model = models.CharField(max_length=100, blank=True, verbose_name=u'CPU型号')
     cpu_nums = models.PositiveSmallIntegerField(verbose_name=u'CPU线程')
     memory = models.CharField(max_length=20, verbose_name=u'内存')
