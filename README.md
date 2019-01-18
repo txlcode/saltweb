@@ -1,4 +1,4 @@
-# SOMS CENTOS7
+# SOMS CENTOS7-test
 
 OMS自动化运维平台
 
