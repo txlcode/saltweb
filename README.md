@@ -1,4 +1,4 @@
-# SOMS
+# SOMS CENTOS7
 
 OMS自动化运维平台
 
