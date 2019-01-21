@@ -148,6 +148,10 @@ return:
 
 ```
 # pip install -r requirements.txt
+#1，修改soms/setting.py里面mysql的设置
+#2，修改saltconfig/nodegroup.conf下mysql的设置
+#3，修改soms/settings_local.py里面saltapi的设置
+#4，修改deploy/views.py里面salt_flush_module.path 为salt文件存储的地方
 ```
 
 同步数据库

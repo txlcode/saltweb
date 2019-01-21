@@ -20,3 +20,7 @@ Traceback (most recent call last):
   File "_poll.pyx", line 115, in zmq.backend.cython._poll.zmq_poll (zmq/backend/cython/_poll.c:1678)
   File "checkrc.pxd", line 11, in zmq.backend.cython.checkrc._check_rc (zmq/backend/cython/_poll.c:1879)
 KeyboardInterrupt
+Traceback (most recent call last):
+  File "salt_event_to_mysql.py", line 37, in <module>
+    conn.rollback()
+_mysql_exceptions.OperationalError: (2006, 'MySQL server has gone away')
