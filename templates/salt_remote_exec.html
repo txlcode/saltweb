@@ -122,7 +122,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec_group('panel-group');"
+                                                   onclick="remote_exec('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -205,30 +205,29 @@
         });
 
         function remote_exec(exec_type) {
-            var objs=document.getElementById("search_single_to")
+            var objs = document.getElementById("search_single_to")
             var values = []
-            var isSel=false;
-            $('#search_single_to option').each(function(v,d){
-                isSel = true
-                values.push(d.value)}
-            )
 
-          // for(var i=0;i<objs.length;i++) {
-          //     if (objs[i].checked) {
-          //         isSel = true;
-          //         break;
-          //     }
-          // }
-          if (isSel == false) {
-              alert("请选至少选择一个主机！");
-              return false;
-          }
-            if(exec_type==='panel-single'){
+            if (exec_type === 'panel-single') {
                 var tgt_select = $("#search_single_to option").map(function () {
-                return $(this).val();
-            }).get().join(',');
-            }else{
+                    return $(this).val();
+                }).get().join(',');
+                var isSel = false;
+                $('#search_single_to option').each(function (v, d) {
+                    isSel = true
+                    values.push(d.value)
+                })
+                if (isSel == false) {
+                    alert("请选至少选择一个主机！");
+                    return false;
+                }
+            }
+            else {
                 tgt_select = $("#search_group").val();
+                if (tgt_select == '请选择') {
+                    alert("请至少选择一个主机组！");
+                    return false;
+                }
             }
             var arg = $("#"+ exec_type + " input[name='arg']").val();
             console.log(tgt_select + "eeeaaa" + arg);

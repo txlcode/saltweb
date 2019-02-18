@@ -1,3 +1,4 @@
+# coding: utf8
 """soms URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -14,6 +15,7 @@ Including another URLconf
     2. Import the include() function: from django.conf.urls import url, include
     3. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+# coding: utf8
 from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls import include, url
@@ -22,7 +24,7 @@ from deploy import views as dviews
 from userperm import views as uviews
 from asset import views as aviews
 from soms import settings
-
+from django.views.static import serve
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'', include('userauth.urls')),
@@ -51,6 +53,7 @@ urlpatterns = [
     url(r'^deploy/module_manage/(?P<id>\d+)/edit/$', dviews.salt_module_manage, name='module_edit'),
     url(r'^deploy/module_manage/$', dviews.salt_module_manage, name='module_manage'),
     url(r'^deploy/remote_execution/$', dviews.salt_remote, name='salt_remote'),
+    url(r'^deploy/salt_remote1/$', dviews.salt_remote1, name='salt_remote1'),
     url(r'^deploy/remote_execution/exec/$', dviews.salt_remote_exec, name='ajax_exec'),
     url(r'^deploy/remote_execution/salt_exec/$', dviews.salt_remote_salt_exec, name='ajax_salt_exec'),
     url(r'^deploy/advanced_manage/$', dviews.salt_advanced_manage, name='advanced_manage'),
@@ -83,6 +86,10 @@ urlpatterns = [
     url(r'^asset/idc/edit/(?P<aid>\d+)/(?P<action>[\w-]+)/$', aviews.idc_asset_manage, name='idc_manage'),
     url(r'^asset/load_city/$', aviews.geo_input, name='load_city'),
     url(r'^{}(?P<path>.*)$'.format(settings.MEDIA_URL[1:]), uviews.protected_serve, {'document_root': settings.MEDIA_ROOT}),
+    #settings.DEBUG = False,取消下面注释
+    #url(r'^{}(?P<path>.*)$'.format(settings.STATIC_URL[1:]), serve,{'document_root': settings.STATIC_ROOT }),
     url(r'^deploy/get_modules_func/$', dviews.get_modules_func, name='get_modules_func'),
-    url(r'^deploy/salt_remote1/$', dviews.salt_remote1, name='salt_remote1'),
 ]
+#handler403 = view.page_permission_denied
+#handler404 = view.page_not_found
+#handler500 = view.page_inter_error

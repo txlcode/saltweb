@@ -104,7 +104,7 @@ class SaltHost(models.Model):
         permissions = (
             ("view_deploy", u"查看主机部署"),
             ("edit_deploy", u"管理主机部署"),
-            ("edit_salthost", u"管理Salt主机")
+            #("edit_salthost", u"管理Salt主机"),
         )
         verbose_name = u'Salt主机授权'
         verbose_name_plural = u'Salt主机授权管理'
@@ -160,7 +160,7 @@ class ModuleUpload(models.Model):
     attchment = models.ManyToManyField(ModuleAttchment, related_name='module_attchment', verbose_name=u'模块上传')
     # {0:公共，1：相应用户组}
     visible = models.IntegerField(default=0, blank=True, null=True, verbose_name=u'可见等级')
-    user_group = models.ManyToManyField(UserGroup, blank=True, null=True, related_name='module_usergroup_set',
+    user_group = models.ManyToManyField(UserGroup, blank=True, related_name='module_usergroup_set',
                                         verbose_name=u'所属用户组')
     created_time = models.DateTimeField(default=timezone.now, verbose_name=u'创建时间')
     modify_time = models.DateTimeField(auto_now=True, verbose_name=u'修改时间')

@@ -124,8 +124,7 @@ def soms_about(request):
 @csrf_protect
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, authentication_form=AuthenticationForm):
-    redirect_to = request.POST.get(redirect_field_name,
-                                   request.GET.get(redirect_field_name, ''))
+    redirect_to = request.POST.get(redirect_field_name,request.GET.get(redirect_field_name, ''))
     verify_err = ''
     if request.method == "POST":
         if request.POST.has_key('login'):

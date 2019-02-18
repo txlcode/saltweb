@@ -1,0 +1,108 @@
+
+user  nginx;
+
+worker_processes  {{ grains['num_cpus'] }};
+
+##error_log  logs/error.log;
+error_log  /data/logs/nginx/error.log  notice;
+
+pid        /opt/nginx/nginx.pid;
+
+worker_rlimit_nofile 65535;
+
+
+events {
+    use epoll;
+    worker_connections  65535;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" "$http_host" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+   
+    log_format access_log_json '{"user_ip":"$http_x_real_ip","lan_ip":"$remote_addr","log_time":"$time_iso8601","user_req":"$request","http_code":"$status","body_bytes_sents":"$body_bytes_sent","req_time":"$request_time","user_ua":"$http_user_agent"}'; 
+    #proxy_headers_hash_max_size 51200;
+    #proxy_headers_hash_bucket_size 6400;
+
+    access_log  /data/logs/nginx/access.log  main;
+    autoindex off;
+    sendfile        on;
+    tcp_nopush     on;
+    server_tokens off;
+    #keepalive_timeout  0;
+    keepalive_timeout  10;
+
+    #gzip  on;
+    #限制每个ip连接数
+    limit_conn_zone $binary_remote_addr zone=perip:10m;
+    #限制每个ip的请求数
+    limit_req_zone $binary_remote_addr zone=allips:10m rate=25r/s;
+
+    index   index.html index.htm index.php;
+
+
+         client_body_buffer_size 8m;
+         client_max_body_size 55m;
+
+
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 8 128k;
+        fastcgi_busy_buffers_size 256k;
+        fastcgi_temp_file_write_size 256k;
+
+        gzip on;
+        gzip_min_length  1k;
+        gzip_buffers     4 16k;
+        gzip_http_version 1.0;
+        gzip_comp_level 2;
+        gzip_types       text/plain application/x-javascript application/javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+        gzip_vary on;
+        gzip_proxied        expired no-cache no-store private auth;
+        gzip_disable        "MSIE [1-6]\.";
+
+
+
+    ### ssl on
+
+
+    ##缓存cache参数配置## 
+   # proxy_connect_timeout 5;
+   # proxy_read_timeout 60; 
+   # proxy_send_timeout 5;
+   # proxy_buffer_size 16k;
+   # proxy_buffers 4 64k;
+   # proxy_busy_buffers_size 128k; 
+   # proxy_temp_file_write_size 128k;
+    #缓存到nginx的本地目录
+   # proxy_temp_path  /data1/nginx/temp/;
+   # proxy_cache_path /data1/nginx/temp/cache_temp levels=1:2 keys_zone=cache_one:200m inactive=1d max_size=10g;
+
+    ### include projects
+    include ./conf.d/*.conf;
+
+
+    ### secreirty
+    #
+    #limit_req_zone $binary_remote_addr zone=allips:10m rate=20r/s;
+    #limit_req zone=allips burst=5 nodelay;
+
+    #limit_conn_zone   one  $binary_remote_addr  10m;
+    #limit_conn one 50;
+
+    server {
+        listen      80;
+        server_name "";
+        return      444;
+    }
+
+
+
+}

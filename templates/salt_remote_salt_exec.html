@@ -160,7 +160,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="fn_group1('panel-group');"
+                                                   onclick="fn1('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -263,37 +263,44 @@
             $('#fun').append(html)
         };
         function fn1(exec_type){
-          var select=document.getElementById("city");
-          var m=select.value;
-          var area=document.getElementById("area");
-          var f=area.value;
-          var fun=m + '.' + f;
-          var objs=document.getElementById("search_single_to")
-          var values = []
-            var isSel=false;
+          if(exec_type==='panel-single'){
+              var select=document.getElementById("city");
+              var m=select.value;
+              var area=document.getElementById("area");
+              var f=area.value;
+              var fun=m + '.' + f;
+              var objs=document.getElementById("search_single_to")
+              var values = []
+              var tgt_select = $("#search_single_to option").map(function () {
+                  return $(this).val();
+            }).get().join(',');
+              var isSel=false;
             $('#search_single_to option').each(function(v,d){
                 isSel = true
                 values.push(d.value)}
             )
-
-          // for(var i=0;i<objs.length;i++) {
-          //     if (objs[i].checked) {
-          //         isSel = true;
-          //         break;
-          //     }
-          // }
-          if (isSel == false) {
+            if (isSel == false) {
               alert("请选至少选择一个主机！");
               return false;
-          }
-          if(exec_type==='panel-single'){
-              var tgt_select = $("#search_single_to option").map(function () {
-                  return $(this).val();
-            }).get().join(',');
-            }else{
-                tgt_select = $("#search_group").val();
+                }
+              var arg = $("#"+ exec_type + " input[name='args']").val();
             }
-            var arg = $("#"+ exec_type + " input[name='args']").val();
+            else
+            {
+                tgt_select = $("#search_group").val();
+                if (tgt_select == '请选择') {
+                    alert("请至少选择一个主机组！");
+                    return false;
+                }
+                var select=document.getElementById("module");
+                var m=select.value;
+                var area=document.getElementById("fun");
+                var f=area.value;
+                var fun=m + '.' + f;
+                var arg = $("#"+ exec_type + " input[name='arg_group']").val();
+                var objs=document.getElementById("search_group")
+                var values = []
+            }
             //arg='salt '+ tgt_select +' '+arg+ ' '+ args
             console.log(tgt_select + "eeeaaa" + arg);
             $("#" + exec_type + " .result").empty();

@@ -64,7 +64,7 @@ class User(AbstractUser):
     )
     mfa = models.CharField(max_length=250, blank=True, null=True, verbose_name=u'MFA密钥')
     qq = models.CharField(max_length=16, blank=True, verbose_name=u'QQ', validators=[
-        RegexValidator(regex='^[^0]\d{4,15}$', message=u'请输入正确的QQ号')])
+    RegexValidator(regex='^[^0]\d{4,15}$', message=u'请输入正确的QQ号')])
     mobile = models.CharField(max_length=30, blank=True, verbose_name=u'联系电话', validators=[
         RegexValidator(regex='^[^0]\d{6,7}$|^[1]\d{10}$', message=u'请输入正确的电话或手机号码', code=u'号码错误')],
                               error_messages={'required': u'联系电话不能为空'})

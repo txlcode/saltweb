@@ -1,0 +1,56 @@
+[global]
+pid = /opt/php/php-fpm.pid
+error_log = /data/logs/php/php-fpm.error.log
+;log_level = notice
+log_level = debug
+;log_level = error
+emergency_restart_threshold = 10
+emergency_restart_interval = 1m
+process_control_timeout = 5s
+process.max = 2000
+process.priority = 0
+daemonize = yes
+events.mechanism = epoll
+;include=/usr/local/php7/etc/php-fpm.d/*.conf
+
+
+
+
+[www]
+user = fpm
+group = fpm
+listen={{ (grains.ip4_interfaces.eth0)[0] }}:9000
+listen.backlog = 1024
+;listen.allowed_clients = 0.0.0.0
+pm = static
+pm.max_children = 100
+pm.start_servers = 25
+pm.min_spare_servers = 20
+pm.max_spare_servers = 30
+pm.process_idle_timeout = 10s;
+pm.max_requests = 5000
+pm.status_path = /status
+slowlog = /data/logs/php/$pool.log.slow
+request_slowlog_timeout = 2
+request_terminate_timeout = 30
+rlimit_files = 65535
+rlimit_core = 0
+catch_workers_output = yes
+;env[HOSTNAME] = $HOSTNAME
+;env[PATH] = /usr/local/bin:/usr/bin:/bin
+;env[TMP] = /tmp
+;env[TMPDIR] = /tmp
+;env[TEMP] = /tmp
+;php_flag[display_errors] = off
+php_flag[display_errors] = on
+
+access.format = "%R - %u %t \"%m %r%Q%q\" %s %f %{mili}d %{kilo}M %C%%"
+access.log = /data/logs/php/$pool.access.log
+
+php_admin_value[error_log] = /data/logs/php/$pool.error.log
+php_admin_flag[log_errors] = on
+;php_value[session.save_handler] = redis
+;php_value[session.save_path]    = "tcp://10.26.93.45:6379?database=7"
+;php_value[soap.wsdl_cache_dir]  = /opt/remi/php56/root/var/lib/php/wsdlcache
+
+;security.limit_extensions = .php .php2 .php3 .php4 .php5 .svg .js .css .jpg .jpeg .gif .png .htm .htm

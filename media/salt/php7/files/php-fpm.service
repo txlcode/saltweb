@@ -1,0 +1,16 @@
+[Unit]
+Description=php-fpm
+After=network.target
+
+
+[Service]
+Type=forking
+PIDFile=/opt/php/php-fpm.pid
+ExecStartPre=/opt/php/sbin/php-fpm -t -c /opt/php/etc/php-fpm.conf
+ExecStart=/opt/php/sbin/php-fpm
+ExecStop=/usr/bin/kill -s QUIT $MAINPID
+ExecReload=/usr/bin/kill -s HUP $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target

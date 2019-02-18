@@ -89,3 +89,5 @@ ENV/
 .ropeproject
 # 上传的文件
 media/salt/fileupload/
+# 屏蔽日志
+log/

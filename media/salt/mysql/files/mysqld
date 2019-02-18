@@ -1,0 +1,74 @@
+#!/bin/sh
+###################################################
+# this script is created by xuxuedong.            #
+# e_mail:365***746@qq.com                         #
+# qqinfo:365***746                                #
+# This  is a script about Mysq startup and stop   #
+# version:1.1                                     #
+###################################################
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/network
+port=3306
+mysql_user="root"
+mysql_pwd="123456"
+CmdPath="/opt/mysql/bin"
+pid_file='/data/database/mysql.pid'
+#chkconfig: 2345 10 90
+#description: mysqld ....
+####start
+function_start_mysql()
+{
+    if [ ! -e "$pid_file" ]
+        then
+            /usr/bin/nohup /bin/sh  ${CmdPath}/mysqld_safe  --defaults-file=/etc/my.cnf > /dev/null  2>&1 &
+            sleep 3;
+	    [ 0 -eq $? ]&& action "start Mysql." /bin/true
+        else
+            action "started Mysql." /bin/true
+            exit 0
+    fi
+}
+
+function_status_mysql()
+{
+    if [ -e "$pid_file" ]
+        then
+            echo " mysqld is running!!!"
+        else
+            echo " mysqld is stopped"
+            exit 7
+    fi
+}
+#####stop
+function_stop_mysql()
+{
+    if [ ! -e "$pid_file" ]
+        then
+            action "stoped Mysql...." /bin/true
+        else
+	    mysqld_pid=`cat "$pid_file"`
+	    kill $mysqld_pid
+            #${CmdPath}/mysqladmin  -u${mysql_user} -p${mysql_pwd} -S $mysql_sock shutdown > /dev/null  2>&1
+            sleep 5;
+            [ 0 -eq $? ]&& action "stop Mysql." /bin/true
+    fi
+}
+case $1 in 
+start)
+        function_start_mysql
+;;
+stop)
+        function_stop_mysql
+;;
+status)
+    function_status_mysql
+;;
+restart)
+        function_stop_mysql
+        sleep 3;
+        function_start_mysql
+;;
+*)
+       echo "USAG:start|stop|restart|status"
+;;
+esac

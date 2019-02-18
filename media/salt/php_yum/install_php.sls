@@ -1,0 +1,21 @@
+install_php:
+  pkg.installed:
+    - name: php_all
+    - pkgs:
+      - php 
+      - php-devel 
+      - php-mbstring 
+      - php-mcrypt 
+      - php-mysql 
+      - php-phpunit-PHPUnit 
+      - php-pecl-xdebug 
+      - php-pecl-xhprof 
+      - php-pdo 
+      - php-pear 
+      - php-fpm 
+      - php-cli 
+      - php-xml 
+      - php-bcmath 
+      - php-process 
+      - php-gd 
+      - php-common

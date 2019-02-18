@@ -143,7 +143,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec1('panel-group');"
+                                                   onclick="remote_exec('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -253,8 +253,34 @@
                 var arg = $("#multiselect_to option").map(function () {
                     return $(this).val();
                 }).get().join(',');
-            } else {
+                var select=document.getElementById("esingle");
+                var arg1=select.value
+                var values = []
+                var isSel=false;
+                $('#search_single_to option').each(function(v,d){
+                    isSel = true
+                    values.push(d.value)}
+                )
+
+                if (isSel == false) {
+                    alert("请至少选择一个主机！");
+                    return false;
+                }
+                else {
+                    alert("请到日志栏目查看执行过程！");
+                }
+            }
+            else {
                 tgt_select = $("#search_group").val();
+                var select=document.getElementById("egroup");
+                var arg1=select.value;
+                if (tgt_select == '请选择') {
+                    alert("请至少选择一个主机组！");
+                    return false;
+                }
+                else {
+                    alert("请到日志栏目查看执行过程！");
+                }
                 var arg = $("#multiselect1_to option").map(function () {
                     return $(this).val();
                 }).get().join(',');
@@ -262,22 +288,6 @@
             /*var arg = $("#" + exec_type + " select[name='module_list'] option").map(function () {
                 return $(this).val();
             }).get().join(',');*/
-            var values = []
-                var isSel=false;
-                $('#search_single_to option').each(function(v,d){
-                    isSel = true
-                    values.push(d.value)}
-                )
-
-            if (isSel == false) {
-              alert("请至少选择一个主机！");
-              return false;
-            }
-            else {
-                alert("请到日志栏目查看执行过程！");
-            }
-            var select=document.getElementById("esingle");
-            var arg1=select.value;
             console.log(tgt_select + "eeeaaa" + arg+ ' ' +arg1)
             $("#" + exec_type + " .result").empty();
             $(".loading").show();

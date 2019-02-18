@@ -721,8 +721,8 @@ def salt_remote_salt_exec(request):
         jid = sapi.remote_execution(tgt_select, fun, arg, expr_form)
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
-        #Message.objects.create(type=u'部署管理', user=request.user.first_name, action='salt命令', action_ip=UserIP(request),
-        #                       content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(fun+' '+arg, rst1, rst_source))
+        Message.objects.create(type=u'部署管理', user=request.user.first_name, action='salt命令', action_ip=UserIP(request),
+                               content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(fun+' '+arg, rst, rst_source))
         return JsonResponse(rst)
     else:
         raise Http404
@@ -735,8 +735,7 @@ def salt_module_deploy(request):
     '''
     if request.user.has_perm('deploy.view_deploy'):
         modules = ModuleUpload.objects.all()
-        return render(request, 'salt_module_deploy.html',
-                      {'modules': modules, 'groups': ['panel-single', 'panel-group']})
+        return render(request, 'salt_module_deploy.html',{'modules': modules, 'groups': ['panel-single', 'panel-group']})
     else:
         raise Http404
 
@@ -749,16 +748,23 @@ def salt_ajax_module_deploy(request):
     if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
         result = ''
         tgt_select = request.POST.get('tgt_select')
-        #check_type = request.POST.get('check_type')
+        check_type = request.POST.get('check_type')
         arg1 = request.POST.get('arg1')
         arg = request.POST.get('arg')
-        expr_form = 'list'
+        if check_type == 'panel-single':
+            expr_form = 'list'
+        else:
+            expr_form = 'nodegroup'
+            tgt_select = SaltGroup.objects.get(pk=tgt_select).groupname
         sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
                      password=settings.SALT_API['password'])
         jid = sapi.remote_module1(tgt_select, 'state.sls', arg, expr_form, arg1)
+        fun='state.sls'
         jid = jid['return'][0]['jid']
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
+        Message.objects.create(type=u'部署管理', user=request.user.first_name, action='模块部署命令', action_ip=UserIP(request),
+                               content=u'远程命令： [{}]，结果：{}原始输出：{}'.format(fun + ' ' + arg, rst, rst_source))
         return JsonResponse(rst)
        #src = '/'.join(module.module.split('.')[:-1])
        #jid = sapi.remote_module(tgt_select, 'state.sls', 'module.{}.{}'.format(module.module_path, module.module),
@@ -1405,7 +1411,7 @@ def salt_remote1(request):
     return render(request, 'salt_remote_salt_exec.html',{'all_logs': modules_list})
 @login_required
 def get_modules_func(request):
-    if request.user.is_superuser:
+    if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
         data = {}
         book = Models_fun.objects.values('modules','func')
         data['list'] = list(book)
@@ -1421,18 +1427,23 @@ def get_modules_func(request):
         #f.close()
 @login_required
 def salt_flush_module(request):
-    if request.user.is_superuser:
-        path='/srv/salt/'
+    if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
+        path='/data/wwwroot/soms/media/salt'
         lists = os.listdir(path)
         lists.remove('_grains')
         lists.remove('_modules')
-        lists.remove('.git')
+        lists.remove('module')
+        #lists.remove('.git')
+        lists.remove('.cache')
+        lists.remove('filedownload')
+        lists.remove('fileupload')
         Customize_modules.objects.all().delete()
         for f in lists:
             if os.path.isfile(os.path.join(path,f)):
                 lists.remove(f)
                 continue
-            Customize_modules.objects.create(modules=f)
+        for f in lists:
+                Customize_modules.objects.create(modules=f)
         return redirect('module_deploy')
 
 

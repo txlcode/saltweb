@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load myinclusion %}
 {% block css %}
+    <!-- iCheck -->
+    <link href="/static/css/green.css" rel="stylesheet">
+    <link href="/static/css/bootstrapValidator.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
 {% endblock %}
-
-{% block header %}
-{% endblock %}
-
 {% block content %}
     <div class="right_col" role="main">
         <div class="">
@@ -12,22 +13,40 @@
 
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div class="x_panel">
-                        <div class="x_title ">
-                            <h2>
-                                控制面板
-                            </h2>
-                            <div class="clearfix"></div>
+                    <div class="tabbable" id="tabs-754998">
+                        <ul class="nav nav-tabs">
+                            <li class="active">
+                                <a href="#panel-single" data-toggle="tab">访问量</a>
+                            </li>
+                            <li>
+                                <a href="#panel-group" data-toggle="tab">服务监控</a>
+                            </li>
+                        </ul>
+
+                        <div class="x_panel" style="border-top:none;">
+                            <div class="x_content">
+                                <div class="loading"></div>
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="panel-single">
+                                        <h1>app访问量</h1>
+                                        <a href="http://waf.cdsb.com:5601/app/kibana#/dashboard/app?_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),panels:!((col:1,id:city-map,panelIndex:1,row:1,size_x:12,size_y:6,type:visualization),(col:1,id:ip-top-5,panelIndex:2,row:18,size_x:12,size_y:5,type:visualization),(col:6,id:top-10-reques,panelIndex:4,row:7,size_x:7,size_y:4,type:visualization),(col:1,id:total,panelIndex:5,row:7,size_x:5,size_y:4,type:visualization),(col:1,id:status-top-5,panelIndex:6,row:23,size_x:12,size_y:3,type:visualization),(col:1,id:%E8%AE%BF%E9%97%AE%E6%95%B0%E9%87%8F,panelIndex:7,row:14,size_x:12,size_y:4,type:visualization),(col:1,id:user_ua,panelIndex:8,row:26,size_x:12,size_y:4,type:visualization),(col:1,id:city,panelIndex:9,row:11,size_x:5,size_y:3,type:visualization),(col:6,id:ip-top,panelIndex:10,row:11,size_x:7,size_y:3,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:app,uiState:())" target="_blank">详细查看</a>
+                                        <iframe src="http://waf.cdsb.com:5601/app/kibana#/dashboard/app?embed&_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-24h,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!f),panels:!((col:1,id:city-map,panelIndex:1,row:1,size_x:12,size_y:6,type:visualization),(col:1,id:ip-top-5,panelIndex:2,row:18,size_x:12,size_y:5,type:visualization),(col:6,id:top-10-reques,panelIndex:4,row:7,size_x:7,size_y:4,type:visualization),(col:1,id:total,panelIndex:5,row:7,size_x:5,size_y:4,type:visualization),(col:1,id:status-top-5,panelIndex:6,row:23,size_x:12,size_y:3,type:visualization),(col:1,id:%E8%AE%BF%E9%97%AE%E6%95%B0%E9%87%8F,panelIndex:7,row:14,size_x:12,size_y:4,type:visualization),(col:1,id:user_ua,panelIndex:8,row:26,size_x:12,size_y:4,type:visualization),(col:1,id:city,panelIndex:9,row:11,size_x:5,size_y:3,type:visualization),(col:6,id:ip-top,panelIndex:10,row:11,size_x:7,size_y:3,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:app,uiState:())" height="800" width="100%"></iframe>
+                                        <h1>小程序访问量</h1>
+                                        <a href="http://47.97.27.9:5601/app/kibana#/dashboard/AWcrNefdx7nVXZM2b91z?_g=()&_a=(description:'',filters:!(),options:(darkTheme:!f),panels:!((col:6,id:AWcrD_yjx7nVXZM2b9kb,panelIndex:1,row:1,size_x:7,size_y:3,type:visualization),(col:1,id:AWcrI-_px7nVXZM2b9uj,panelIndex:2,row:8,size_x:12,size_y:4,type:visualization),(col:1,id:AWcrLj2wx7nVXZM2b9zM,panelIndex:3,row:12,size_x:12,size_y:3,type:visualization),(col:1,id:AWcrFKnMx7nVXZM2b9nI,panelIndex:4,row:15,size_x:12,size_y:4,type:visualization),(col:1,id:AWcrJfQYx7nVXZM2b9vo,panelIndex:5,row:19,size_x:12,size_y:5,type:visualization),(col:1,id:AWcrMldRx7nVXZM2b90X,panelIndex:6,row:1,size_x:5,size_y:3,type:visualization),(col:1,id:AWcrM2Dhx7nVXZM2b908,panelIndex:7,row:4,size_x:12,size_y:4,type:visualization),(col:1,id:AWdN1CIFx7nVXZM2cxrm,panelIndex:8,row:24,size_x:12,size_y:3,type:visualization)),query:(match_all:()),timeRestore:!f,title:%E5%B0%8F%E7%A8%8B%E5%BA%8F,uiState:(P-1:(vis:(params:(sort:(columnIndex:!n,direction:!n)))),P-3:(vis:(params:(sort:(columnIndex:!n,direction:!n)))),P-4:(vis:(params:(sort:(columnIndex:!n,direction:!n)))),P-6:(vis:(defaultColors:('0+-+100':'rgb(0,104,55)'))),P-8:(vis:(params:(sort:(columnIndex:!n,direction:!n))))),viewMode:view)" target="_blank">详细查看</a>
+                                        <iframe src="http://47.97.27.9:5601/app/kibana#/dashboard/AWcrNefdx7nVXZM2b91z?embed=true&_g=()" height="800" width="100%"></iframe>
+                                    </div>
+                                    <div class="tab-pane" id="panel-group">
+                                        <iframe src="http://monitor.cdsb.com:3000/dashboard/db/fu-wu-qi-ji-ben-xing-neng?orgId=1&from=1548280217768&to=1548301817768&var-group=cdsb&var-host=%E6%B4%BB%E5%8A%A8%E6%9C%8D1-1&var-application=All&var-iteams=All" height="100%" width="100%"></iframe>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        Coming soon...
-
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block js %}

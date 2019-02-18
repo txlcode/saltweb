@@ -1,0 +1,57 @@
+user  nginx;
+worker_processes {{ grains['num_cpus'] }};
+
+
+
+
+events {
+    worker_connections  65535;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  0;
+    #keepalive_timeout  65;
+
+    #gzip  on;
+
+
+    index   index.html index.htm index.php;
+
+
+         client_body_buffer_size 8m;
+         client_max_body_size 55m;
+
+
+        fastcgi_connect_timeout 300;
+        fastcgi_send_timeout 300;
+        fastcgi_read_timeout 300;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 8 128k;
+        fastcgi_busy_buffers_size 128k;
+        fastcgi_temp_file_write_size 256k;
+
+        gzip on;
+        gzip_min_length  1k;
+        gzip_buffers     4 16k;
+        gzip_http_version 1.0;
+        gzip_comp_level 2;
+        gzip_types       text/plain application/x-javascript text/css application/xml;
+        gzip_vary on;
+        gzip_proxied        expired no-cache no-store private auth;
+        gzip_disable        "MSIE [1-6]\.";
+
+
+
+    ### include projects
+    include ./conf.d/*.conf;
+
+
+}
