@@ -1,6 +1,10 @@
 redis-install:
   pkg.installed:
-    - name: redis
+    - names:
+      {% if grains['osmajorrelease'] == 6 %}
+      - epel-release
+      {% endif %}
+      - redis
 /data/redis:
   file.directory:
     - user: root
