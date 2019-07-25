@@ -1,4 +1,4 @@
-# SOMS CENTOS7  FUCK
+# SOMS CENTOS7  FUCKds
 
 OMS自动化运维平台
 
