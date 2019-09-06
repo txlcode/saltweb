@@ -26,7 +26,7 @@ from asset import views as aviews
 from soms import settings
 from django.views.static import serve
 urlpatterns = [
-    #url(r'^admin/', admin.site.urls),
+    url(r'^admin/', admin.site.urls),
     url(r'', include('userauth.urls')),
     url(r'^user_perm/exec/$', uviews.user_command_list, name='command_list'),
     url(r'^user_perm/exec/manage/add/$', uviews.user_command_manage, name='command_add'),
