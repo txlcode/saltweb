@@ -89,9 +89,11 @@ class SaltHost(models.Model):
     # salt主机存活状态
     alive = models.BooleanField(default=False, verbose_name=u'连通状态')
     # 上次检测时间
-    alive_time_last = models.DateTimeField(auto_now=True)
+    #alive_time_last = models.DateTimeField(auto_now=True)
+    alive_time_last = models.DateTimeField()
     # 当前检测时间
-    alive_time_now = models.DateTimeField(auto_now=True)
+    #alive_time_now = models.DateTimeField(auto_now=True)
+    alive_time_now = models.DateTimeField()
     status = models.BooleanField(default=False, verbose_name=u'是否加入salt管理')
     user_group = models.ManyToManyField(UserGroup, related_name='host_usergroup_set', verbose_name=u'所属用户组')
     department = models.ManyToManyField(Department, related_name='host_department_set', verbose_name=u'所属部门')

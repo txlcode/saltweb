@@ -290,16 +290,10 @@ class SaltAPI(object):
         return ret
 
 def main():
-    sapi = SaltAPI(url='https://172.29.3.66:8000',username='saltapi',password='123456')
-    arg='mysql,nginx'
-    arg1='test=true'
-    print arg
-    jid1 = sapi.remote_module1('slave1', 'state.sls', arg, 'nodegroup', arg1)
-    jid = jid1['return'][0]['jid']
-    rst_source = sapi.salt_runner(jid)
-    rst = rst_source['info'][0]['Result']
-    print jid
-    print rst_source
+    sapi = SaltAPI(url='https://10.24.238.20:8000',username='saltapi',password='123')
+    ret=sapi.salt_alive('*')
+    print ret
+
 if __name__ == '__main__':
     main()
 

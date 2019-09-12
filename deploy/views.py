@@ -318,8 +318,11 @@ def salt_key_list(request):
     '''
 
     if request.user.is_superuser:
+        sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                       password=settings.SALT_API['password'])
+        minions_unuse, minions_pre = sapi.list_all_key()
         minions = SaltHost.objects.filter(status=True)
-        minions_pre = SaltHost.objects.filter(status=False)
+        #minions_pre = SaltHost.objects.filter(status=False)
         return render(request, 'salt_key_list.html', {'all_minions': minions, 'all_minions_pre': minions_pre})
     else:
         raise Http404
@@ -336,29 +339,39 @@ def salt_key_import(request):
         minions, minions_pre = sapi.list_all_key()
         alive = False
         ret_alive = sapi.salt_alive('*')
+       #for node_name in minions:
+       #    try:
+       #        alive = ret_alive[node_name]
+       #        alive = True
+       #    except:
+       #        alive = False
+       #    try:
+       #        SaltHost.objects.create(hostname=node_name, alive=alive, status=True)
+       #    except:
+       #        salthost = SaltHost.objects.get(hostname=node_name)
+       #        now = datetime.datetime.now()
+       #        alive_old = SaltHost.objects.get(hostname=node_name).alive
+       #        if alive != alive_old:
+       #            salthost.alive_time_last = now
+       #            salthost.alive = alive
+       #        salthost.alive_time_now = now
+       #        salthost.save()
         for node_name in minions:
-            try:
-                alive = ret_alive[node_name]
-                alive = True
-            except:
-                alive = False
-            try:
-                SaltHost.objects.create(hostname=node_name, alive=alive, status=True)
-            except:
-                salthost = SaltHost.objects.get(hostname=node_name)
-                now = datetime.datetime.now()
-                alive_old = SaltHost.objects.get(hostname=node_name).alive
-                if alive != alive_old:
-                    salthost.alive_time_last = now
-                    salthost.alive = alive
+            alive = ret_alive[node_name]
+            salthost = SaltHost.objects.get(hostname=node_name)
+            now = datetime.datetime.now()
+            alive_old = salthost.alive
+            if alive != alive_old:
+                salthost.alive_time_last =salthost.alive_time_now
                 salthost.alive_time_now = now
-                salthost.save()
+                salthost.alive = alive
+            salthost.save()
         for node_name in minions_pre:
             try:
                 SaltHost.objects.get_or_create(hostname=node_name, alive=alive, status=False)
             except:
                 print 'not create'
-
+        #return HttpResponse(minions_pre)
         return redirect('key_list')
     else:
         raise Http404

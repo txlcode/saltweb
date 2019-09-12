@@ -49,10 +49,10 @@
                                 <tbody>
                                 {% for m in all_minions_pre %}
                                     <tr>
-                                        <td>{{ m.hostname }}</td>
+                                        <td>{{m}}</td>
                                         <td>
                                             <a class="btn btn-info btn-sm"
-                                               href="{% url 'key_manage' %}?hostname={{ m.hostname }}&add=1"
+                                               href="{% url 'key_manage' %}?hostname={{m}}&add=1"
                                                {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}><i
                                                     class="fa fa-plus-square "></i></a>
                                         </td>

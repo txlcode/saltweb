@@ -154,6 +154,7 @@ return:
 #4，修改deploy/views.py里面salt_flush_module.path 为salt文件存储的地方
 ```
 同步salt日志到数据库
+
 yum install epel-release
 yum install supervisor
 supervisord -c /data/wwwroot/soms/salt_event_to_mysql_supervisord.conf
