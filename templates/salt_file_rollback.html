@@ -201,6 +201,7 @@ $(function(){
             return false;
             });
         {% endfor %}
+
 });
 
 function getfilelist(_panel, _host){
@@ -317,30 +318,34 @@ $("#{{ panel }} textarea[name='result']").html(ret);
 },
 });
         })
-})
+    })
 {% endfor %}
 
 
-$(function(){
-        $("#panel-group select[name='tgt_select']").bind("change",function(){
-            var tgt_select = $("#panel-group select[name='tgt_select']").val();
-            if(tgt_select!=""){
-            $.ajax({
-type:"POST",
-url:"{% url 'ajax_minions' %}",
-data:{tgt_select:tgt_select},
-dataType:"html",
-success:function(ret){
-var ret = eval('('+ret+')');
-var html = "<label class=\"control-label col-md-3 col-sm-3 col-xs-12\">包含主机</label><div class=\"col-md-6 col-sm-6 col-xs-12\"><fieldset disabled><textarea class=\"form-control\">"+ret+"</textarea></fieldset></div>";
-$("#panel-group div[name='group_minions']").html(html);
-}
-})
-            }
-            else{
-            $("#panel-group div[name='group_minions']").html("");
-            }
-            })
-        })
 </script>
+
 {% endblock %}
+
+
+
+// $(function(){
+//         $("#panel-group select[name='tgt_select']").bind("change",function(){
+//             var tgt_select = $("#panel-group select[name='tgt_select']").val();
+//             if(tgt_select!=""){
+//             $.ajax({
+// type:"POST",
+// url:"{% url 'ajax_minions' %}",
+// data:{tgt_select:tgt_select},
+// dataType:"html",
+// success:function(ret){
+// var ret = eval('('+ret+')');
+// var html = "<label class=\"control-label col-md-3 col-sm-3 col-xs-12\">包含主机</label><div class=\"col-md-6 col-sm-6 col-xs-12\"><fieldset disabled><textarea class=\"form-control\">"+ret+"</textarea></fieldset></div>";
+// $("#panel-group div[name='group_minions']").html(html);
+// }
+// })
+//             }
+//             else{
+//             $("#panel-group div[name='group_minions']").html("");
+//             }
+//             })
+//         })

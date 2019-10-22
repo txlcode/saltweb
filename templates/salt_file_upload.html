@@ -274,6 +274,10 @@
             formdata.append('tgt_select', tgt_select);
             formdata.append('check_type', exec_type);
             $("#" + exec_type + " .result").empty();
+            console.log(tgt_select);
+            console.log(formdata.get('tgt_select'));
+            console.log(formdata.get('check_type'));
+            console.log(formdata.get('files_upload'));
             var alert_msg = '';
             if (tgt_select === '')
                 alert_msg = alert_msg + "请选择要上传的主机！<br />";

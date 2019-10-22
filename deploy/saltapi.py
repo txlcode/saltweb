@@ -291,8 +291,9 @@ class SaltAPI(object):
 
 def main():
     sapi = SaltAPI(url='https://10.24.238.20:8000',username='saltapi',password='123')
-    ret=sapi.salt_alive('*')
-    print ret
+    rst_source = sapi.salt_runner('20191012160540951236')
+    rst = rst_source['info'][0]['Result']
+    print rst
 
 if __name__ == '__main__':
     main()

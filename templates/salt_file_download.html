@@ -117,7 +117,7 @@
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     <input type="text" class="form-control" id="egroup" name="arg" value="{{ arg }}"
-                                                           placeholder="输入远程路径或者文件">
+                                                           placeholder="输入远程路径或者文件" >
                                                 </div>
                                             </div>
                                             <input type="hidden" name="child_path"/>
@@ -273,8 +273,16 @@
                 var tgt_select = $("#search_single_to option").map(function () {
                     return $(this).val();
                 }).get().join(',');
+                if (tgt_select == '') {
+                    alert("请至少选择一个主机!");
+                    return false;
+                }
             } else {
                 tgt_select = $("#search_group").val();
+                if (tgt_select == '请选择') {
+                    alert("请至少选择一个主机组!");
+                    return false;
+                }
             }
             var remote_path = $("#"+exec_type+" input[name='arg']").val();
             ajaxList(tgt_select, remote_path, exec_type);

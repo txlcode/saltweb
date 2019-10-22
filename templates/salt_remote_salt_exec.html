@@ -5,6 +5,7 @@
     <link href="/static/css/green.css" rel="stylesheet">
     <link href="/static/css/bootstrapValidator.min.css" rel="stylesheet">
     <link href="/static/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="/static/css/awesomplete.css" rel="stylesheet">
 {% endblock %}
 {% block content %}
     <div class="right_col" role="main">
@@ -69,12 +70,20 @@
                                                 <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
+                                                <!--<div class="col-md-12 col-sm-12 col-xs-12">-->
+                                                    <!--<select id="city" onchange="fn()">-->
+                                                         <!--{% for i in all_logs %}-->
+                                                        <!--<option value="{{i.modules}}">{{i.modules}}</option>-->
+                                                    <!--{% endfor %}-->
+                                                        <!--</select>-->
+                                                <!--</div>-->
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <select id="city" onchange="fn()">
+                                                    <input class="awesomplete" id="city" list="mylist" onchange="fn()">
+                                                    <datalist id="mylist">
                                                          {% for i in all_logs %}
                                                         <option value="{{i.modules}}">{{i.modules}}</option>
-                                                    {% endfor %}
-                                                        </select>
+                                                        {% endfor %}
+                                                        </datalist>
                                                 </div>
                                                 <label class="col-md-12 col-sm-12 col-xs-12">函数选择<span
                                                         class="required">*</span>
@@ -131,12 +140,20 @@
                                             <label class="col-md-12 col-sm-12 col-xs-12">模块选择<span
                                                         class="required">*</span>
                                                 </label>
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    <select id="module" onchange="fn_group()">
+                                                <!--<div class="col-md-12 col-sm-12 col-xs-12">-->
+                                                    <!--<select id="module" onchange="fn_group()">-->
+                                                         <!--{% for i in all_logs %}-->
+                                                        <!--<option value="{{i.modules}}">{{i.modules}}</option>-->
+                                                    <!--{% endfor %}-->
+                                                        <!--</select>-->
+                                                <!--</div>-->
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                    <input class="awesomplete" id="module" list="mylist" onchange="fn_group()">
+                                                    <datalist id="mylist">
                                                          {% for i in all_logs %}
                                                         <option value="{{i.modules}}">{{i.modules}}</option>
-                                                    {% endfor %}
-                                                        </select>
+                                                        {% endfor %}
+                                                        </datalist>
                                                 </div>
                                                 <label class="col-md-12 col-sm-12 col-xs-12">函数选择<span
                                                         class="required">*</span>
@@ -221,6 +238,7 @@
     <script type="text/javascript" src="/static/js/multiselect.min.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap-select.js"></script>
     <script src="/static/js/csrf.js"></script>
+    <script src="/static/js/awesomplete.js"></script>
     {#    <script src="/static/js/salt_result.js"></script>#}
     <script>
     get_group_minion($("#search_group"));
@@ -229,6 +247,7 @@
         success:function (res) {
             funs = res.list
         }})
+        console.log(funs);
         function fn(){
             var select=document.getElementById("city");
             var c=select.value;
@@ -323,7 +342,7 @@
                         $("#" + exec_type + " .result").addClass("shell-result").append("<a class=\"collapsed\" data-toggle=\"collapse\" data-parent=\"#" + exec_type + "-ret\"\n" +
                             "href=\"#" + exec_type + "-" + t + "\"><div style=\"color:#29dc33;\">[soms@" + i + "]$ " + arg + "</div></a>" +
                             "<div id=\"" + exec_type + "-" + t + "\" class=\"panel-collapse collapse in\">\n" +
-                            "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + item['return'] + "</div></div>");//.replace(/\n/g, "<br />") + "</div></div>");
+                            "<div class=\"panel-body\" style=\"padding:5px;color:" + color + ";\">\n" + item['success'] + "</div></div>");//.replace(/\n/g, "<br />") + "</div></div>");
                         //$("#panel-single .result").append("<div><label>" + i + "</label><div>" + item + "</div>");
                     });
                     $("#jid").val(ret.jid);

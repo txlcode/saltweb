@@ -983,10 +983,11 @@ def salt_ajax_file_upload(request):
     执行文件上传
     '''
     if request.is_ajax():
-        check_type = request.POST.get('check_type')
-        tgt_select = request.POST.get('tgt_select')
+        # raw_unicode_escape.去掉‘u’
+        check_type = request.POST.get('check_type').encode('raw_unicode_escape')
+        tgt_select = request.POST.get('tgt_select').encode('raw_unicode_escape')
         files_upload = request.FILES.getlist('files_upload', None)
-        remote_path = request.POST.get('remote_path', None).strip(' ')
+        remote_path = request.POST.get('remote_path', None).strip(' ').encode('raw_unicode_escape')
         remark = request.POST.get('remark', None)
         tag = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         upload_dir = './media/salt/fileupload/user_%s/%s' % (request.user.id, tag)
@@ -1010,10 +1011,10 @@ def salt_ajax_file_upload(request):
                        password=settings.SALT_API['password'])
         jid = sapi.remote_module(tgt_select, 'state.sls', 'file_upload',
                                  {'SALTSRC': src_dir, 'dst_path': dst_path, 'src_path': tag, 'remote_path': remote_path,
-                                  'files': [f.name for f in files_upload]}, expr_form)
+                                  'files': [f.name.encode('raw_unicode_escape') for f in files_upload]}, expr_form)
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
-
+        #print HttpResponse(jid)
         return JsonResponse(rst)
 
 
