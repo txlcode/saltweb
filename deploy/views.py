@@ -387,19 +387,23 @@ def salt_key_manage(request, hostname=None):
             sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
                            password=settings.SALT_API['password'])
             hostname = request.GET.get('hostname')
-            salthost = SaltHost.objects.get(hostname=hostname)
             action = ''
-
+            now = datetime.datetime.now()
             if request.GET.has_key('add'):
-                ret = sapi.accept_key(hostname)
-                if ret:
-                    salthost.status = True
-                    salthost.save()
-                    result = 3
-                    action = u'添加主机'
+                try:
+                    salthost = SaltHost.objects.get(hostname=hostname)
+                except:
+                    ret = sapi.accept_key(hostname)
+                    if ret:
+                        SaltHost.objects.create(hostname=hostname,status=True,alive_time_last=now,alive_time_now=now)
+                        result = 3
+                        action = u'添加主机'
+                else:
+                    pass
             if request.GET.has_key('delete'):
                 ret = sapi.delete_key(hostname)
                 if ret:
+                    salthost = SaltHost.objects.get(hostname=hostname)
                     salthost.status = False
                     salthost.save()
                     result = 2
@@ -415,6 +419,7 @@ def salt_key_manage(request, hostname=None):
                 except:
                     pass
                     # alive = False
+                salthost = SaltHost.objects.get(hostname=hostname)
                 salthost.alive = alive
                 salthost.save()
                 action = u'刷新主机'
@@ -425,6 +430,7 @@ def salt_key_manage(request, hostname=None):
                 return JsonResponse(result)
 
             if action:
+                salthost = SaltHost.objects.get(hostname=hostname)
                 Message.objects.create(type=u'部署管理', user=request.user.first_name, action=action,
                                        action_ip=UserIP(request), content=u'%s %s' % (action, salthost.hostname))
 
@@ -1014,9 +1020,35 @@ def salt_ajax_file_upload(request):
                                   'files': [f.name.encode('raw_unicode_escape') for f in files_upload]}, expr_form)
         rst_source = sapi.salt_runner(jid)
         rst = rst_source['info'][0]['Result']
-        #print HttpResponse(jid)
-        return JsonResponse(rst)
 
+        #基本构思就是
+        # 1；先上传文件到maser的upload下面（./media/salt/fileupload/user_%s/%s）。
+        # 2；然后（sapi.remote_module）这个函数，其目的是将minion上的老文件进行备份到另外个目录dst_path（/srv/backup/user_%s/%s/%s），并且讲master文件拷贝到minion的目标目录上去。
+
+
+        if check_type == 'panel-single':
+            file_list = ''
+            tgt_list=tgt_select.split(',')
+            for index in range(len(tgt_list)):
+                target=SaltHost.objects.get(hostname=tgt_list[index])
+                target_id=target.id
+                for f in files_upload:
+                    file_list = file_list + f.name.encode('raw_unicode_escape') + ','
+                file_list = file_list[:-1]
+                FileUpload.objects.create(host_name=tgt_list[index],file_path=upload_dir,remote_path=remote_path,file_tag=tag,remark=remark,user_id=request.user.id,host_id=target_id,file_name=file_list)
+                file_list = ''
+        else:
+            file_list=''
+            host_names=sgroup.minions.all()
+            for i in range(len(host_names)):
+                target = SaltHost.objects.get(hostname=host_names[i])
+                target_id = target.id
+                for f in files_upload:
+                    file_list=file_list + f.name.encode('raw_unicode_escape')+','
+                file_list=file_list[:-1]
+                FileUpload.objects.create(host_name=host_names[i], file_path=upload_dir, remote_path=remote_path,file_tag=tag, remark=remark, user_id=request.user.id, host_id=target_id,file_name=file_list)
+                file_list = ''
+        return JsonResponse(rst)
 
 @login_required
 def salt_file_rollback(request):
@@ -1040,31 +1072,38 @@ def salt_ajax_file_rollback(request):
         if request.method == 'POST':
             if request.is_ajax():
                 r_list = []
-                if request.POST.get('check_type') == 'rollback_file':
-                    if request.POST.get('get_type') == 'panel-group':
-                        grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
-                    else:
-                        tgt_select = request.POST.get('tgt_select')
-                    rollback_list = FileRollback.objects.filter(target=tgt_select)
-                    r_list = []
-                    for r in rollback_list:
-                        r_list.append(r.cur_path)
-                    func = lambda x, y: x if y in x else x + [y]
-                    r_list = reduce(func, [[], ] + r_list)
-                    return HttpResponse(json.dumps(r_list))
-
                 if request.POST.get('check_type') == 'rollback_history_list':
                     if request.POST.get('get_type') == 'panel-group':
                         grp = request.POST.get('tgt_select')
                         tgt_select = SaltGroup.objects.get(nickname=grp).groupname
                     else:
                         tgt_select = request.POST.get('tgt_select')
-                    cur_path = request.POST.get('rollback_list', None)
-                    rollback_history_list = FileRollback.objects.filter(cur_path=cur_path).filter(target=tgt_select)
-                    for r in rollback_history_list:
-                        r_list.append(r.file_tag)
-                    return HttpResponse(json.dumps(r_list))
+                        tgt_select_list=tgt_select.split(',')
+                        # for i in range(len(tgt_select_list)):
+                        rollback_tag=[i['file_tag'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0]).values('file_tag')]
+                        return HttpResponse(json.dumps(rollback_tag))
+                        # rollback_list = FileRollback.objects.filter(target=tgt_select)
+                    # r_list = []
+                    # for r in rollback_list:
+                    #     r_list.append(r.cur_path)
+                    # func = lambda x, y: x if y in x else x + [y]
+                    # r_list = reduce(func, [[], ] + r_list)
+
+                if request.POST.get('check_type') == 'rollback_file_list':
+                    if request.POST.get('get_type') == 'panel-group':
+                        grp = request.POST.get('tgt_select')
+                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
+                    else:
+                        tgt_select = request.POST.get('tgt_select')
+                        tgt_select_list = tgt_select.split(',')
+                        file_tag=request.POST.get('rollback_list')
+                        path_file_list = [i['remote_path']+'/'+ i['file_name'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0],file_tag=file_tag).values('remote_path','file_name')]
+                        return HttpResponse(json.dumps(path_file_list))
+                    # cur_path = request.POST.get('rollback_list', None)
+                    # rollback_history_list = FileRollback.objects.filter(cur_path=cur_path).filter(target=tgt_select)
+                    # for r in rollback_history_list:
+                    #     r_list.append(r.file_tag)
+                    # return HttpResponse(json.dumps(r_list))
 
                 if request.POST.get('check_type') == 'rollback_history_remark':
                     if request.POST.get('get_type') == 'panel-group':

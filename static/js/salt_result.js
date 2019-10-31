@@ -27,6 +27,7 @@ function remote_exec(obj, rtype, url) {
         $("#result-modal-salt").modal("show");
         return false;
     }
+
     $(".loading").show();
     $.ajax({
         type:"POST",

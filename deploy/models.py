@@ -110,8 +110,6 @@ class SaltHost(models.Model):
         )
         verbose_name = u'Salt主机授权'
         verbose_name_plural = u'Salt主机授权管理'
-
-
 class SaltGroup(models.Model):
     # 定义分组别名
     nickname = models.CharField(
@@ -182,14 +180,17 @@ class ModuleUpload(models.Model):
 
 class FileUpload(models.Model):
     user = models.ForeignKey(User)
-    target = models.CharField(max_length=244, verbose_name=u'远程主机')
-    file_path = models.FileField(
-        upload_to=file_upload_dir_path,
-        verbose_name=u'文件上传')
+    host= models.ForeignKey(SaltHost)
+    host_name = models.CharField(max_length=244, verbose_name=u'远程主机')
+    file_name = models.CharField(max_length=244, verbose_name=u'文件名称')
+    # file_path = models.FileField(
+    #     upload_to=file_upload_dir_path,
+    #     verbose_name=u'文件上传')
+    file_path = models.CharField(max_length=244, verbose_name=u'文件上传')
     remote_path = models.CharField(max_length=244, verbose_name=u'远程路径')
     file_tag = models.CharField(
         max_length=244,
-        unique=True,
+        # unique=True,
         verbose_name=u'文件标签')
     remark = models.TextField(max_length=50, blank=True, verbose_name=u'备注')
 

@@ -82,6 +82,10 @@ def get_server_asset_info(request):
                         return redirect('server_info')
                 else:
                     raise Http404
+            if request.GET.has_key('delete'):
+                if request.user.has_perm('asset.edit_asset'):
+                    aid = request.get_full_path().split('=')[1]
+                    ServerAsset.objects.filter(id=aid).delete()
             if request.GET.has_key('export'):
                 response = HttpResponse(content_type='application/vnd.ms-excel')
                 response['Content-Disposition'] = 'attachment;filename=服务器资产信息.xls'

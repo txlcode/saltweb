@@ -41,6 +41,7 @@
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" name="alls" onClick="selectAll('formName','id')" title="全选/反选"></th>
+                                    <th>操作</th>
                                     <th>详细</th>
                                     <th>主机名</th>
                                     <th>操作系统</th>
@@ -59,7 +60,8 @@
                                 {% for server in all_server %}
                                 <tr id="{{ server.pk }}">
                                     <td><input class="icheck" type="checkbox" value="{{ server.pk }}" name="id"></td>
-                                    <td><a href="{% url 'server_info' %}?aid={{ server.pk }}"><i class="fa fa-envelope"></a></td>
+                                    <td><a class="btn btn-danger btn-sm" href="{% url 'server_info' %}?delete={{ server.pk }}"><i class="fa fa-trash-o "></i></a></td>
+                                    <td><a href="{% url 'server_info' %}?aid={{ server.pk }}"><i class="fa fa-envelope"></i></a></td>
                                     <td>{{ server.hostname }} 【{{ server.nodename }}】</td>
                                     <td>{{ server.os }}</td>
                                     <td>{{ server.cpu_model }}</td>

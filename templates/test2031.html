@@ -176,7 +176,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="fn_group1('panel-group');"
+                                                   onclick="fn1('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
@@ -244,8 +244,9 @@
         var funs
         $.ajax({url: '/deploy/get_modules_func',
         success:function (res) {
-            funs = res.list;
-        }});
+            funs = res.list
+        }})
+        console.log(funs);
         function fn(){
             var select=document.getElementById("city");
             var c=select.value;
@@ -270,13 +271,13 @@
                 if(v.modules == c) {
                     return v
                 }
-            });
+            })
             console.log(result);
             var html = result.reduce(function (acc, v) {
                return  acc += '<option value="'+v.func+'">'+v.func+'</option>'
             }, '')
-            console.log(html);
-            $('#fun').empty(html);
+            console.log(html)
+            $('#fun').empty(html)
             $('#fun').append(html)
         };
         function fn1(exec_type){
@@ -436,7 +437,9 @@
 
         function remote_exec(exec_type) {
             if(exec_type==='panel-single'){
-                var tgt_select = $("#search_single_to option").map(function () {return $(this).val();}).get().join(',');
+                         var tgt_select = $("#search_single_to option").map(function () {
+                return $(this).val();
+            }).get().join(',');
             }else{
                 tgt_select = $("#search_group").val();
             }

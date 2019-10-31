@@ -59,12 +59,9 @@
                                                 {% show_user_group_minions request.user.pk request.user.is_superuser 'single' %}
                                             </div>
                                         </div>
-                                        <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">文件回滚 <span class="required">*</span>
-                                            </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select name="rollback_list" class="form-control">
-                                                </select>
+                                            <div class="form-group">
+                                            <div class="col-md-6 col-md-offset-3">
+                                                <button class="btn btn-success" onclick="remark1('panel-single')">确定</button>
                                             </div>
                                         </div>
                                         <div class="item form-group">
@@ -72,6 +69,14 @@
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select name="rollback_history_list" class="form-control">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">文件回滚 <span class="required">*</span>
+                                            </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select name="rollback_file_list" class="form-control">
                                                 </select>
                                             </div>
                                         </div>
@@ -88,7 +93,6 @@
                                         <div class="form-group">
                                             <div class="col-md-6 col-md-offset-3">
                                                 <input type="submit" name="send" class="btn btn-success" value="提交">
-
                                             </div>
                                         </div>
                                         </fieldset>
@@ -110,13 +114,8 @@
                                             </div>
                                         </div>
                                         <div name="group_minions" class="item form-group">
-                                        </div>
-                                        <div class="item form-group">
-                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">文件回滚 <span class="required">*</span>
-                                            </label>
-                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select name="rollback_list" class="form-control">
-                                                </select>
+                                            <div class="col-md-6 col-md-offset-3">
+                                                <button class="btn btn-success" onclick="remark1('ppanel-group')">确定</button>
                                             </div>
                                         </div>
                                         <div class="item form-group">
@@ -124,6 +123,14 @@
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
                                                 <select name="rollback_history_list" class="form-control">
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="item form-group">
+                                            <label class="control-label col-md-3 col-sm-3 col-xs-12">文件回滚 <span class="required">*</span>
+                                            </label>
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                <select name="rollback_file_list" class="form-control">
                                                 </select>
                                             </div>
                                         </div>
@@ -160,42 +167,65 @@
 
 {% block js %}
 <script src="/static/js/bootstrapValidator.min.js"></script>
+<!--<script src="/static/js/jquery.min.js"></script>-->
 <script src="/static/js/csrf.js"></script>
+<script type="text/javascript" src="/static/js/multiselect.min.js"></script>
 <script>
+    get_group_minion($("#search_group"));
+$("#search_single").multiselect({
+        search: {
+            left: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+            right: '<input type="text" name="q" class="form-control" placeholder="Search..." />',
+        },
+        // afterSelect: function(values){
+        //     alert("Select value: "+values);
+        //     console.log(values);
+        //     }
+        fireSearch: function (value) {
+            return value.length > 0;
+        }
+    });
+
 
 function remark(){
     var remark = $("#module_list option:selected").attr("title");
     $("#remark").text(remark);
+    console.log(remark);
 }
-remark();
-$("#module_list").bind("change",function(){
-        remark();
-        })
-
+function remark1(exec_type){
+    if(exec_type==='panel-single'){
+                var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
+    }else{
+        var tgt_select = $("#search_group").val();
+    }
+    getfilelist(exec_type,tgt_select);
+}
 $(function(){
         {% for panel in groups %}
-        $("#{{ panel }} select[name='tgt_select']").bind("change",function(){
-            var tgt_select = $("#{{ panel }} select[name='tgt_select']").val();
-            getfilelist("{{ panel }}",tgt_select);
-            return false;
-            });
-        $("#{{ panel }} select[name='rollback_list']").bind("change",function(){
-            var rollback_list = $("#{{ panel }} select[name='rollback_list']").val();
-            var tgt_select = $("#{{ panel }} select[name='tgt_select']").val();
-            gethistorylist("{{ panel }}",tgt_select,rollback_list);
+        $("#{{ panel }} select[name='rollback_history_list']").bind("change",function(){
+            var rollback_history_list = $("#{{ panel }} select[name='rollback_history_list']").val();
+            var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
+            console.log(tgt_select instanceof Array);
+            if (tgt_select instanceof Array) {
+                var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
+            }
+            console.log(tgt_select instanceof Array);
+            console.log("{{ panel }}"+' ' +rollback_history_list+' '+tgt_select);
+            gethistorylist("{{ panel }}",tgt_select,rollback_history_list);
             return false;
             });
         $("#{{ panel }} select[name='rollback_list']").bind("change",function(){
             var rollback_list = $("#{{ panel }} select[name='rollback_list']").val();
             var rollback_remark = $("#{{ panel }} select[name='rollback_history_list']").val();
-            var tgt_select = $("#{{ panel }} select[name='tgt_select']").val();
+            var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
+            console.log("rollback_remark");
             gethistoryremark("{{ panel }}",tgt_select,rollback_list,rollback_remark);
             return false;
             });
         $("#{{ panel }} select[name='rollback_history_list']").bind("change",function(){
             var rollback_list = $("#{{ panel }} select[name='rollback_list']").val();
             var rollback_remark = $("#{{ panel }} select[name='rollback_history_list']").val();
-            var tgt_select = $("#{{ panel }} select[name='tgt_select']").val();
+            var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
             $("#{{ panel }} div[name='rollback_history_remark']").html('');
             gethistoryremark("{{ panel }}",tgt_select,rollback_list,rollback_remark);
             return false;
@@ -205,21 +235,27 @@ $(function(){
 });
 
 function getfilelist(_panel, _host){
+    console.log('getfilelist');
+    console.log(_panel);
+    console.log(_host);
     $.ajax({
-type:"POST",
-url:"{% url 'ajax_rollback' %}",
-data:{tgt_select:_host,check_type:"rollback_file",get_type:_panel},
-datatype:"html",
-success:function(ret){
-var ret = eval('('+ret+')');
-var arr = new Array();
-var rst = '';
-for(i in ret){
-var rst = rst + "<option name=\"module\" value=\"" + ret[i] + "\" title=\"\">"+ret[i]+"</option>"
+        type:"POST",
+        url:"{% url 'ajax_rollback' %}",
+        data:{tgt_select:_host,check_type:"rollback_history_list",get_type:_panel},
+        datatype:"html",
+        success:function(ret){
+            console.log(ret);
+            var ret = eval('('+ret+')');
+            var arr = new Array();
+            var rst = '';
+            for(i in ret){
+                var rst = rst + "<option name=\"module\" value=\"" + ret[i] + "\" title=\"\">"+ret[i]+"</option>"
 }
-$("#"+_panel+" select[name='rollback_list']").html(rst);
-$("#"+_panel+" select[name='rollback_list']").get(0).selectedIndex = 0;
-gethistorylist(_panel,_host, $("#"+_panel+" select[name='rollback_list']").val());
+$("#"+_panel+" select[name='rollback_history_list']").html(rst);
+$("#"+_panel+" select[name='rollback_history_list']").get(0).selectedIndex = 0;
+var log=$("#"+_panel+" select[name='rollback_history_list']").val();
+console.log(log);
+gethistorylist(_panel,_host, $("#"+_panel+" select[name='rollback_history_list']").val());
 },
 errors:function(e){
 alert("error");
@@ -227,22 +263,23 @@ alert("error");
 });
 }
 
-function gethistorylist(_panel, _host, _filename){
+function gethistorylist(_panel, _host, _history){
     $.ajax({
-type:"POST",
+    type:"POST",
 url:"{% url 'ajax_rollback' %}",
-data:{rollback_list:_filename,tgt_select:_host,check_type:"rollback_history_list",get_type:_panel},
+data:{rollback_list:_history,tgt_select:_host,check_type:"rollback_file_list",get_type:_panel},
 datatype:"html",
 success:function(ret){
+    console.log(ret);
 var ret = eval('('+ret+')');
 var arr = new Array();
 var rst = '';
 for(i in ret){
 var rst = rst + "<option name=\"module\" value=\"" + ret[i] + "\" title=\"\">"+ret[i]+"</option>"
 }
-$("#"+_panel+" select[name='rollback_history_list']").html(rst);
-$("#"+_panel+" select[name='rollback_history_list']").get(0).selectedIndex = 0;
-gethistoryremark(_panel, _host, _filename, $("#"+_panel+" select[name='rollback_history_list']").val());
+$("#"+_panel+" select[name='rollback_file_list']").html(rst);
+$("#"+_panel+" select[name='rollback_file_list']").get(0).selectedIndex = 0;
+gethistoryremark(_panel, _host, _filename, $("#"+_panel+" select[name='rollback_file_list']").val());
 },
 errors:function(e){
 alert("error");
@@ -275,7 +312,7 @@ alert("error");
 
 {% for panel in groups %}
 $(document).ready(function(){
-        $("#{{ panel }} form").bootstrapValidator({
+    $("#{{ panel }} form").bootstrapValidator({
 fields:{
 tgt_select:{
 validators:{
@@ -320,6 +357,31 @@ $("#{{ panel }} textarea[name='result']").html(ret);
         })
     })
 {% endfor %}
+
+
+
+function get_group_minion(obj) {
+            var gid = $(obj).val();
+            console.log(gid);
+            $("#group_minions").empty();
+            if (gid !== '') {
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'get_minions' %}",
+                    data: {gid:gid},
+                    dataType: "json",
+                    success: function (ret) {
+                        $.each(ret, function (i, item) {
+                            if(item===true)
+                                item = "在线";
+                            else
+                                item = "离线";
+                            $("#group_minions").append("<span class=\"label label-info\">" + i + " - " + item + "</span>&nbsp;");
+                        })
+                    }
+                })
+            }
+        }
 
 
 </script>

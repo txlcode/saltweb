@@ -232,6 +232,7 @@
         function ajaxList(_host, _arg, _type) {
             $(".loading").show();
             $('#'+_type+' input[name="arg"]').val(_arg);
+            console.log(_host+" "+_arg+" "+_type);
             $.ajax({
                 type: "POST",
                 url: "{% url 'file_download' %}",
@@ -240,6 +241,7 @@
                 success: function (ret) {
                     $(".loading").hide();
                     var htmls = "";
+                    console.log(ret);
                     ret_arr = ret[_host];
                     console.log(ret_arr);
                     console.log('just test');
@@ -251,7 +253,7 @@
                         var arg_list = _arg.split('/');
                         console.log(arg_list);
                         var parent = arg_list.slice(0, -1).join('/');
-                        console.log(parent);
+                        console.log('this is parent='+ parent);
                         if (parent !== "") {
                             htmls = '<a href="#" style="color:#29dc33;" onClick=\'javascript:return ajaxList("' + _host
                                 + '", "' + parent + '", "' + _type + '")\'>返回上一级</a><br />' + htmls;
@@ -261,6 +263,7 @@
                         "style=\"cursor: pointer;\"><i class=\"fa fa-question-circle\"></i> </span></label><div class=\"col-md-12 col-sm-12 " +
                         "col-xs-12\"><div class=\"form-control shell-result\" style=\"margin:0;\">" + htmls + "</div></div>";
                     $("#" + _type + " .result").html(html);
+                    console.log(htmls);
                 },
                 errors: function (e) {
                     alert("error");
@@ -297,6 +300,8 @@
                 tgt_select = $("#search_group").val();
             }
             var arg_list = t.innerHTML.split(' ');
+            console.log('this'+arg_list);
+            console.log(arg_list[0][0]);
             var filename = arg_list[arg_list.length - 1];
             var old_path = $("#"+_type+" input[name='arg']").val();
             if (old_path == filename) {
@@ -316,6 +321,7 @@
                 dict['arg'] = arg;
                 dict['type'] = "download";
                 dict['check_type'] = _type;
+                console.log(dict);
                 $(".loading").show();
                 var dform = document.createElement("form");
                 dform.target = "_blank";
@@ -326,8 +332,11 @@
                     input.type = "hidden";
                     input.name = i;
                     input.value = dict[i];
+                    console.log(i);
+                    console.log(dict[i]);
                     dform.appendChild(input);
                 }
+                console.log("this is form="+dform);
                 dform.submit();
                 $(".loading").hide();
                 document.body.removeChild(dform);

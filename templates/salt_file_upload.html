@@ -281,7 +281,7 @@
             var alert_msg = '';
             if (tgt_select === '')
                 alert_msg = alert_msg + "请选择要上传的主机！<br />";
-            if (formdata.get('files_upload').name === '')
+            if (formdata.get('files_upload') === '')
                 alert_msg = alert_msg + "请选择要上传的文件！<br />";
             if (formdata.get('remote_path') === '')
                 alert_msg = alert_msg + "请填写要上传的路径！<br />";

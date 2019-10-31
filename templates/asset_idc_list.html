@@ -120,6 +120,7 @@ url:"{% url 'load_city' %}",
 data:{action:"load_city_data"},
 dataType:"html",
 success:function(ret) {
+console.log(ret);
 $(".loading").hide();
 var html = '<div style="margin-left:5px;margin-top:10px;" class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>省市区数据载入完成...</div>';
 $("#notice_id").html(html);

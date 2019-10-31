@@ -55,6 +55,10 @@
                                                href="{% url 'key_manage' %}?hostname={{m}}&add=1"
                                                {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}><i
                                                     class="fa fa-plus-square "></i></a>
+                                            <a class="btn btn-danger btn-sm"
+                                                   href="{% url 'key_manage' %}?hostname={{ m.hostname }}&delete=1"
+                                                   {% if not perms.deploy.edit_salthost %}disabled="disabled"{% endif %}><i
+                                                        class="fa fa-trash-o "></i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}

@@ -30,8 +30,7 @@
                                     <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
                                     </li>
                                     <li class="dropdown">
-                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
-                                           aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
                                         <ul class="dropdown-menu" role="menu">
                                             <li><a href="#">Settings 1</a>
                                             </li>
@@ -56,8 +55,7 @@
                                                 <fieldset disabled="disabled">
                                             {% endif %}
                                             <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">目标主机 <span
-                                                        class="required">*</span>
+                                                <label class="col-md-12 col-sm-12 col-xs-12">目标主机 <span class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     {% show_user_group_minions request.user.pk request.user.is_superuser 'multiple' %}
@@ -90,8 +88,7 @@
                                         </form>
                                     </div>
                                     <div class="tab-pane" id="panel-group">
-                                        <form class="form-horizontal form-border" method="post" action=""
-                                              enctype="multipart/form-data">
+                                    <form class="form-horizontal form-border" method="post" action="" enctype="multipart/form-data">
                                             {% csrf_token %}
                                             {% if perms.deploy.edit_deploy %}
                                                 <fieldset>
@@ -122,7 +119,7 @@
                                                 <div class="">
                                                 <span class="egroup">
                                                 <a href="#"
-                                                   onclick="remote_exec('panel-group');"
+                                                   onclick="remote_exec_group('panel-group');"
                                                    name="panel-group" role="button" class="btn btn-success">运行</a>
                                                 </span>
                                                     {#                                                    <a href="#" onclick="show_result();" role="button"#}
