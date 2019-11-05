@@ -84,7 +84,7 @@
                                                 </div>
                                             </div>
                                             <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">备注
+                                                <label class="col-md-12 col-sm-12 col-xs-12">备注<span class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     <input type="text" name="remark" class="form-control"
@@ -146,7 +146,7 @@
                                                 </div>
                                             </div>
                                             <div class="item form-group">
-                                                <label class="col-md-12 col-sm-12 col-xs-12">备注
+                                                <label class="col-md-12 col-sm-12 col-xs-12">备注<span class="required">*</span>
                                                 </label>
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                                     <input type="text" name="remark" class="form-control"
@@ -283,6 +283,8 @@
                 alert_msg = alert_msg + "请选择要上传的主机！<br />";
             if (formdata.get('files_upload') === '')
                 alert_msg = alert_msg + "请选择要上传的文件！<br />";
+            if (formdata.get('remark') === '')
+                alert_msg = alert_msg + "请填写备注！<br />";
             if (formdata.get('remote_path') === '')
                 alert_msg = alert_msg + "请填写要上传的路径！<br />";
             if (alert_msg !== '') {

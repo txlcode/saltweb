@@ -113,11 +113,14 @@
                                                 {% show_user_group_groups request.user.pk request.user.is_superuser %}
                                             </div>
                                         </div>
-                                        <div name="group_minions" class="item form-group">
                                             <div class="col-md-6 col-md-offset-3">
-                                                <button class="btn btn-success" onclick="remark1('ppanel-group')">确定</button>
+                                        <div id="group_minions" name="group_minions" class="item form-group" style="padding-left: 10px;"></div>
+                                                </div>
+                                            <div class="item form-group">
+                                            <div class="col-md-6 col-md-offset-3">
+                                                <button class="btn btn-success" onclick="remark1('panel-group')">确定</button>
                                             </div>
-                                        </div>
+                                                </div>
                                         <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">历史版本 <span class="required">*</span>
                                             </label>
@@ -210,7 +213,6 @@ $(function(){
                 var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
             }
             console.log(tgt_select instanceof Array);
-            console.log("{{ panel }}"+' ' +rollback_history_list+' '+tgt_select);
             gethistorylist("{{ panel }}",tgt_select,rollback_history_list);
             return false;
             });
@@ -279,7 +281,7 @@ var rst = rst + "<option name=\"module\" value=\"" + ret[i] + "\" title=\"\">"+r
 }
 $("#"+_panel+" select[name='rollback_file_list']").html(rst);
 $("#"+_panel+" select[name='rollback_file_list']").get(0).selectedIndex = 0;
-gethistoryremark(_panel, _host, _filename, $("#"+_panel+" select[name='rollback_file_list']").val());
+gethistoryremark(_panel, _host, _history);
 },
 errors:function(e){
 alert("error");
@@ -287,13 +289,15 @@ alert("error");
 });
 }
 
-function gethistoryremark(_panel, _host, _rollback_list, _remark){
+function gethistoryremark(_panel, _host, _history, _file_name){
+    console.log('this is test')
     $.ajax({
 type:"POST",
 url:"{% url 'ajax_rollback' %}",
-data:{rollback_remark:_remark,tgt_select:_host,rollback_list:_rollback_list,check_type:"rollback_history_remark",get_type:_panel},
+data:{tgt_select:_host,rollback_history:_history,check_type:"rollback_history_remark",get_type:_panel},
 datatype:"html",
 success:function(ret){
+    console.log(ret);
 var ret = eval('('+ret+')');
 var arr = new Array();
 var rst = '';
@@ -321,13 +325,13 @@ message:'请选择主机'
 }
 }
 },
-rollback_list:{
-validators:{
-notEmpty:{
-message:'请选择文件'
-}
-}
-},
+// rollback_file_list:{
+// validators:{
+// notEmpty:{
+// message:'请选择文件'
+// }
+// }
+// },
 rollback_history_list:{
 validators:{
 notEmpty:{
@@ -362,7 +366,6 @@ $("#{{ panel }} textarea[name='result']").html(ret);
 
 function get_group_minion(obj) {
             var gid = $(obj).val();
-            console.log(gid);
             $("#group_minions").empty();
             if (gid !== '') {
                 $.ajax({
@@ -372,6 +375,7 @@ function get_group_minion(obj) {
                     dataType: "json",
                     success: function (ret) {
                         $.each(ret, function (i, item) {
+                            console.log(item);
                             if(item===true)
                                 item = "在线";
                             else

@@ -208,6 +208,34 @@ class FileUpload(models.Model):
         verbose_name_plural = u'文件上传管理'
 
 
+class FileUploadGroup(models.Model):
+    user = models.ForeignKey(User)
+    group_name = models.CharField(max_length=244, verbose_name=u'主机组名称')
+    file_name = models.CharField(max_length=244, verbose_name=u'文件名称')
+    # file_path = models.FileField(
+    #     upload_to=file_upload_dir_path,
+    #     verbose_name=u'文件上传')
+    file_path = models.CharField(max_length=244, verbose_name=u'文件上传')
+    remote_path = models.CharField(max_length=244, verbose_name=u'远程路径')
+    file_tag = models.CharField(
+        max_length=244,
+        # unique=True,
+        verbose_name=u'文件标签')
+    remark = models.TextField(max_length=50, blank=True, verbose_name=u'备注')
+
+    def __str__(self):
+        return self.file_path
+
+    class Meta:
+        default_permissions = ()
+        permissions = (
+            ("view_filemanage", u"查看文件管理"),
+            ("edit_fileupload", u"管理文件上传"),
+            ("edit_filedownload", u"管理文件下载"),
+        )
+        verbose_name = u'文件上传'
+        verbose_name_plural = u'文件上传管理'
+
 class FileRollback(models.Model):
     user = models.ForeignKey(User)
     target = models.CharField(

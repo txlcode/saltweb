@@ -392,14 +392,14 @@ def salt_key_manage(request, hostname=None):
             if request.GET.has_key('add'):
                 try:
                     salthost = SaltHost.objects.get(hostname=hostname)
-                except:
                     ret = sapi.accept_key(hostname)
-                    if ret:
-                        SaltHost.objects.create(hostname=hostname,status=True,alive_time_last=now,alive_time_now=now)
-                        result = 3
-                        action = u'添加主机'
+                except:
+                    SaltHost.objects.create(hostname=hostname,status=True,alive_time_last=now,alive_time_now=now)
+                    result = 3
+                    action = u'添加主机'
                 else:
-                    pass
+                    salthost.status = True
+                    salthost.save()
             if request.GET.has_key('delete'):
                 ret = sapi.delete_key(hostname)
                 if ret:
@@ -1048,6 +1048,11 @@ def salt_ajax_file_upload(request):
                 file_list=file_list[:-1]
                 FileUpload.objects.create(host_name=host_names[i], file_path=upload_dir, remote_path=remote_path,file_tag=tag, remark=remark, user_id=request.user.id, host_id=target_id,file_name=file_list)
                 file_list = ''
+            for f in files_upload:
+                file_list = file_list + f.name.encode('raw_unicode_escape') + ','
+            file_list = file_list[:-1]
+            FileUploadGroup.objects.create(group_name=sgroup.nickname, file_path=upload_dir, remote_path=remote_path,
+                                           file_tag=tag, remark=remark, user_id=request.user.id, file_name=file_list)
         return JsonResponse(rst)
 
 @login_required
@@ -1075,13 +1080,24 @@ def salt_ajax_file_rollback(request):
                 if request.POST.get('check_type') == 'rollback_history_list':
                     if request.POST.get('get_type') == 'panel-group':
                         grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
+                        tgt_select = SaltGroup.objects.get(id=grp)
+                        rollback_tag = [i['file_tag'] for i in FileUploadGroup.objects.filter(group_name=tgt_select).values('file_tag')]
                     else:
                         tgt_select = request.POST.get('tgt_select')
                         tgt_select_list=tgt_select.split(',')
-                        # for i in range(len(tgt_select_list)):
-                        rollback_tag=[i['file_tag'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0]).values('file_tag')]
-                        return HttpResponse(json.dumps(rollback_tag))
+                        if len(tgt_select_list) <= 1:
+                            rollback_tag=[i['file_tag'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0]).values('file_tag')]
+                        elif len(tgt_select_list) > 1:
+                            for i in range(len(tgt_select_list)):
+                                if i == 0 :
+                                    rollback_tag = set([f['file_tag'] for f in FileUpload.objects.filter(host_name=tgt_select_list[i]).values('file_tag')])
+                                else:
+                                    j = i - 1
+                                    # rollback_tag=set([f['file_tag'] for f in FileUpload.objects.filter(host_name=tgt_select_list[i]).values('file_tag')]) & set([k['file_tag'] for k in FileUpload.objects.filter(host_name=tgt_select_list[j]).values('file_tag')])
+                                    rollback_tag=rollback_tag & set([k['file_tag'] for k in FileUpload.objects.filter(host_name=tgt_select_list[j]).values('file_tag')])
+                            rollback_tag=list(rollback_tag)
+                    rollback_tag.sort(reverse=True)
+                    return HttpResponse(json.dumps(rollback_tag))
                         # rollback_list = FileRollback.objects.filter(target=tgt_select)
                     # r_list = []
                     # for r in rollback_list:
@@ -1092,13 +1108,15 @@ def salt_ajax_file_rollback(request):
                 if request.POST.get('check_type') == 'rollback_file_list':
                     if request.POST.get('get_type') == 'panel-group':
                         grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
+                        tgt_select = SaltGroup.objects.get(id=grp)
+                        file_tag = request.POST.get('rollback_list')
+                        path_file_list = [i['remote_path']+'/'+ i['file_name']for i in FileUploadGroup.objects.filter(group_name=tgt_select,file_tag=file_tag).values('remote_path','file_name')]
                     else:
                         tgt_select = request.POST.get('tgt_select')
                         tgt_select_list = tgt_select.split(',')
                         file_tag=request.POST.get('rollback_list')
                         path_file_list = [i['remote_path']+'/'+ i['file_name'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0],file_tag=file_tag).values('remote_path','file_name')]
-                        return HttpResponse(json.dumps(path_file_list))
+                    return HttpResponse(json.dumps(path_file_list))
                     # cur_path = request.POST.get('rollback_list', None)
                     # rollback_history_list = FileRollback.objects.filter(cur_path=cur_path).filter(target=tgt_select)
                     # for r in rollback_history_list:
@@ -1106,19 +1124,24 @@ def salt_ajax_file_rollback(request):
                     # return HttpResponse(json.dumps(r_list))
 
                 if request.POST.get('check_type') == 'rollback_history_remark':
+                    history=request.POST.get('rollback_history')
                     if request.POST.get('get_type') == 'panel-group':
                         grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
+                        tgt_select = SaltGroup.objects.get(id=grp).groupname
+                        rollback_remark = [i['remark'] for i in FileUploadGroup.objects.filter(group_name=tgt_select,file_tag=history).values('remark')]
                     else:
                         tgt_select = request.POST.get('tgt_select')
-                    cur_path = request.POST.get('rollback_list', None)
-                    file_tag = request.POST.get('rollback_remark', None)
-                    rollback_history_remark = FileRollback.objects.filter(cur_path=cur_path).filter(file_tag=file_tag) \
-                        .filter(target=tgt_select)
-                    for r in rollback_history_remark:
-                        r_list.append(r.remark)
+                        tgt_select_list = tgt_select.split(',')
+                        rollback_remark = [i['remark'] for i in FileUpload.objects.filter(host_name=tgt_select_list[0],file_tag=history).values('remark')]
+                    #     tgt_select = request.POST.get('tgt_select')
+                    # cur_path = request.POST.get('rollback_list', None)
+                    # file_tag = request.POST.get('rollback_remark', None)
+                    # rollback_history_remark = FileRollback.objects.filter(cur_path=cur_path).filter(file_tag=file_tag) \
+                    #     .filter(target=tgt_select)
+                    # for r in rollback_history_remark:
+                    #     r_list.append(r.remark)
 
-                    return HttpResponse(json.dumps(r_list))
+                    return HttpResponse(json.dumps(rollback_remark))
 
                 else:
                     if request.POST.get('check_type') == 'panel-group':
