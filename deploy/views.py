@@ -408,6 +408,9 @@ def salt_key_manage(request, hostname=None):
                     salthost.save()
                     result = 2
                     action = u'删除主机'
+                    ####从分组里面删除主机
+                    # for i in salthost.salt_host_set.all():
+                    #     i.minions.remove(salthost)
             if request.GET.has_key('flush') and request.is_ajax():
                 # result: 0 在线 | 1 离线
                 result = {'retcode': 1}
@@ -1093,7 +1096,6 @@ def salt_ajax_file_rollback(request):
                                     rollback_tag = set([f['file_tag'] for f in FileUpload.objects.filter(host_name=tgt_select_list[i]).values('file_tag')])
                                 else:
                                     j = i - 1
-                                    # rollback_tag=set([f['file_tag'] for f in FileUpload.objects.filter(host_name=tgt_select_list[i]).values('file_tag')]) & set([k['file_tag'] for k in FileUpload.objects.filter(host_name=tgt_select_list[j]).values('file_tag')])
                                     rollback_tag=rollback_tag & set([k['file_tag'] for k in FileUpload.objects.filter(host_name=tgt_select_list[j]).values('file_tag')])
                             rollback_tag=list(rollback_tag)
                     rollback_tag.sort(reverse=True)
@@ -1127,7 +1129,7 @@ def salt_ajax_file_rollback(request):
                     history=request.POST.get('rollback_history')
                     if request.POST.get('get_type') == 'panel-group':
                         grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(id=grp).groupname
+                        tgt_select = SaltGroup.objects.get(id=grp)
                         rollback_remark = [i['remark'] for i in FileUploadGroup.objects.filter(group_name=tgt_select,file_tag=history).values('remark')]
                     else:
                         tgt_select = request.POST.get('tgt_select')
@@ -1145,30 +1147,68 @@ def salt_ajax_file_rollback(request):
 
                 else:
                     if request.POST.get('check_type') == 'panel-group':
+                        file_tag=request.POST.get('tag')
                         grp = request.POST.get('tgt_select')
-                        tgt_select = SaltGroup.objects.get(nickname=grp).groupname
+                        tgt_select = SaltGroup.objects.get(id=grp)
                         expr_form = 'nodegroup'
+                        remote_path=FileUploadGroup.objects.get(group_name=tgt_select,file_tag=file_tag).remote_path
+                        remote_path=remote_path.encode('raw_unicode_escape')
+                        file_name=FileUploadGroup.objects.get(group_name=tgt_select, file_tag=file_tag).file_name
+                        file_name=file_name.encode('raw_unicode_escape')
+                        file_name_list=file_name.split(',')
+                        sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                                       password=settings.SALT_API['password'])
+                        file_tag_new = '%s_%s' % (request.user.id, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+                        file_tag_new = '%s->%s' % (file_tag_new, file_tag)
+                        rst = ''
+                        for f in range(len(file_name_list)):
+
+                            # 回滚前备份远程文件
+                            ret_bak= sapi.file_manage(tgt_select, 'file_bakup.Backup',request.user.id, file_tag_new,remote_path, file_name_list[f],expr_form)
+
+
+                            # 文件回滚
+                            ret = sapi.file_manage(tgt_select, 'file_bakup.Rollback', request.user.id,file_tag,remote_path, file_name_list[f],expr_form)
+
+                            for k in ret:
+                                rst = rst + u'主机：' + k + '\n回滚结果：' + ret[k] + '\n' + '-' * 80 + '\n'
+
+                        Message.objects.create(type=u'文件管理', user=request.user.first_name, action=u'文件回滚',
+                                               action_ip=UserIP(request), content=u'文件回滚 %s' % rst)
+
+
+                        return HttpResponse(json.dumps(rst))
                     else:
-                        tgt_select = request.POST.get('tgt_select')
+                        file_tag = request.POST.get('tag')
+                        tgt_select=request.POST.get('tgt_select')
                         expr_form = 'list'
-                    remote_path = request.POST.get('remote_path')
-                    file_tag = request.POST.get('tag')
-                    sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
-                                   password=settings.SALT_API['password'])
-                    file_tag_new = '%s%s' % (request.user.id, datetime.datetime.now().strftime('%j%Y%m%d%H%M%S'))
-                    # 回滚前备份远程文件
-                    ret_bak = sapi.file_manage(tgt_select, 'file_bakup.Backup', remote_path, file_tag_new, None,
-                                               expr_form)
-                    # 文件回滚
-                    ret = sapi.file_manage(tgt_select, 'file_bakup.Rollback', remote_path, file_tag, None, expr_form)
-                    rst = ''
-                    for k in ret:
-                        rst = rst + u'主机：' + k + '\n回滚结果：\n' + ret[k] + '\n' + '-' * 80 + '\n'
+                        remote_path = FileUpload.objects.get(host_name=tgt_select,file_tag=file_tag).remote_path
+                        remote_path = remote_path.encode('raw_unicode_escape')
+                        file_name = FileUpload.objects.get(host_name=tgt_select,file_tag=file_tag).file_name
+                        file_name = file_name.encode('raw_unicode_escape')
+                        sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
+                                       password=settings.SALT_API['password'])
+                        file_tag_new = '%s_%s' % (request.user.id, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+                        file_tag_new = '%s->%s' % (file_tag_new, file_tag)
+                        file_name_list = file_name.split(',')
+                        rst = ''
+                        for f in range(len(file_name_list)):
+                            ret_bak = sapi.file_manage(tgt_select, 'file_bakup.Backup', request.user.id, file_tag_new,
+                                                       remote_path, file_name_list[f], expr_form)
 
-                    Message.objects.create(type=u'文件管理', user=request.user.first_name, action=u'文件回滚',
-                                           action_ip=UserIP(request), content=u'文件回滚 %s' % rst)
+                            # 文件回滚
+                            ret = sapi.file_manage(tgt_select, 'file_bakup.Rollback', request.user.id, file_tag,
+                                                   remote_path, file_name_list[f], expr_form)
 
-                    return HttpResponse(json.dumps(rst))
+                            for k in ret:
+                                rst = rst + u'主机：' + k + '\n回滚结果：' + ret[k] + '\n' + '-' * 80 + '\n'
+
+                        Message.objects.create(type=u'文件管理', user=request.user.first_name, action=u'文件回滚',
+                                               action_ip=UserIP(request), content=u'文件回滚 %s' % rst)
+
+                        return HttpResponse(json.dumps(rst))
+
+
     else:
         raise Http404
 

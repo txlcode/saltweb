@@ -249,7 +249,7 @@ class SaltAPI(object):
         ret = content['return'][0]
         return ret
 
-    def file_manage(self,tgt,fun,arg1,arg2,arg3,expr_form):
+    def file_manage(self,tgt,fun,arg1,arg2,arg3,arg4,expr_form):
         '''
         文件回滚
         '''
@@ -261,6 +261,9 @@ class SaltAPI(object):
         params3 = {'arg': arg3}
         arg_add_2 = urllib.urlencode(params3)
         obj = obj + '&' + arg_add_2
+        params4 = {'arg': arg4}
+        arg_add_4 = urllib.urlencode(params4)
+        obj = obj + '&' + arg_add_4
         self.token_id()
         content = self.postRequest(obj)
         ret = content['return'][0]

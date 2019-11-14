@@ -4,6 +4,12 @@
 {% set remote_path = salt['pillar.get']('remote_path',) %}
 {% set SALTSRC = salt['pillar.get']('SALTSRC',) %}
 
+file_upload:
+  file.recurse:
+    - name: {{ remote_path }}
+    - source: salt://{{ SALTSRC }}/{{ src_path }}
+    - backup: minion
+
 backup_dir:
   file.directory:
     - name: {{ dst_path }}
@@ -15,9 +21,3 @@ backup_dir:
         /bin/cp -rf {{ file }} {{ dst_path }}
         {% endfor %}
     - unless: test ! -d {{ dst_path }}
-
-file_upload:
-  file.recurse:
-    - name: {{ remote_path }}
-    - source: salt://{{ SALTSRC }}/{{ src_path }}
-    - backup: minion

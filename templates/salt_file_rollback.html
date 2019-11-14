@@ -45,7 +45,7 @@
 
                             <div class="tab-content">
                                 <div class="tab-pane active" id="panel-single">
-                                    <form class="form-horizontal form-border" method="post" action="" enctype="multipart/form-data">
+                                    <form class="form-horizontal form-border" method="post"  enctype="multipart/form-data">
                                         {% csrf_token %}
                                         {% if perms.deploy.edit_fileupload %}
                                         <fieldset>
@@ -61,14 +61,16 @@
                                         </div>
                                             <div class="form-group">
                                             <div class="col-md-6 col-md-offset-3">
-                                                <button class="btn btn-success" onclick="remark1('panel-single')">确定</button>
+                                                <button type="button" class="btn btn-success" onclick="choice_host('panel-single')">确定</button>
+                                                <!--<input type="submit" class="btn btn-success" onclick="choice_host('panel-single')" value="确定1">-->
+                                                <!--<input type="button" class="btn btn-success" onclick="choice_host('panel-single')" value="确定">-->
                                             </div>
                                         </div>
                                         <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">历史版本 <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select name="rollback_history_list" class="form-control">
+                                                <select name="rollback_history_list" data-page="0" class="form-control">
                                                 </select>
                                             </div>
                                         </div>
@@ -92,14 +94,15 @@
                                         <div class="ln_solid"></div>
                                         <div class="form-group">
                                             <div class="col-md-6 col-md-offset-3">
-                                                <input type="submit" name="send" class="btn btn-success" value="提交">
+                                                <!--<input type="submit" name="send1" class="btn btn-success" onclick="commit('panel-single')" value="提交">-->
+                                                <button type="button" class="btn btn-success" onclick="commit('panel-single')">提交</button>
                                             </div>
                                         </div>
                                         </fieldset>
                                     </form>
                                 </div>
                                 <div class="tab-pane" id="panel-group">
-                                    <form class="form-horizontal form-border" method="post" action="" enctype="multipart/form-data">
+                                    <form class="form-horizontal form-border" method="post"  enctype="multipart/form-data">
                                         {% csrf_token %}
                                         {% if perms.deploy.edit_fileupload %}
                                         <fieldset>
@@ -118,14 +121,14 @@
                                                 </div>
                                             <div class="item form-group">
                                             <div class="col-md-6 col-md-offset-3">
-                                                <button class="btn btn-success" onclick="remark1('panel-group')">确定</button>
+                                                <input type="button" class="btn btn-success" onclick="choice_host('panel-group')" value="确定">
                                             </div>
                                                 </div>
                                         <div class="item form-group">
                                             <label class="control-label col-md-3 col-sm-3 col-xs-12">历史版本 <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                <select name="rollback_history_list" class="form-control">
+                                                <select name="rollback_history_list" data-page="1" class="form-control">
                                                 </select>
                                             </div>
                                         </div>
@@ -149,7 +152,7 @@
                                         <div class="ln_solid"></div>
                                         <div class="form-group">
                                             <div class="col-md-6 col-md-offset-3">
-                                                <input type="submit" name="send" class="btn btn-success" value="提交">
+                                                <input type="button" name="send" class="btn btn-success" onclick="commit('panel-group')" value="提交">
                                             </div>
                                         </div>
                                         </fieldset>
@@ -195,7 +198,7 @@ function remark(){
     $("#remark").text(remark);
     console.log(remark);
 }
-function remark1(exec_type){
+function choice_host(exec_type){
     if(exec_type==='panel-single'){
                 var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
     }else{
@@ -206,13 +209,23 @@ function remark1(exec_type){
 $(function(){
         {% for panel in groups %}
         $("#{{ panel }} select[name='rollback_history_list']").bind("change",function(){
-            var rollback_history_list = $("#{{ panel }} select[name='rollback_history_list']").val();
-            var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
-            console.log(tgt_select instanceof Array);
-            if (tgt_select instanceof Array) {
+            //debugger
+            //0 danji 1 fenzu
+            var currentPage =  $(this).data('page')
+            var rollback_history_list = $(this).val()
+
+            if(currentPage == 0) {
                 var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
+            }else {
+                var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
             }
-            console.log(tgt_select instanceof Array);
+
+            // var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();
+            // console.log('________'+tgt_select);
+            // if (tgt_select instanceof Array) {
+
+            // }
+            console.log('________'+tgt_select);
             gethistorylist("{{ panel }}",tgt_select,rollback_history_list);
             return false;
             });
@@ -237,7 +250,7 @@ $(function(){
 });
 
 function getfilelist(_panel, _host){
-    console.log('getfilelist');
+    console.log('getfilelist1');
     console.log(_panel);
     console.log(_host);
     $.ajax({
@@ -266,6 +279,9 @@ alert("error");
 }
 
 function gethistorylist(_panel, _host, _history){
+    console.log('rollback_list:'+_history);
+    console.log('tgt_select:'+_host);
+    console.log('get_type:'+_panel);
     $.ajax({
     type:"POST",
 url:"{% url 'ajax_rollback' %}",
@@ -289,7 +305,8 @@ alert("error");
 });
 }
 
-function gethistoryremark(_panel, _host, _history, _file_name){
+function gethistoryremark(_panel, _host, _history){
+    //debugger
     console.log('this is test')
     $.ajax({
 type:"POST",
@@ -297,8 +314,8 @@ url:"{% url 'ajax_rollback' %}",
 data:{tgt_select:_host,rollback_history:_history,check_type:"rollback_history_remark",get_type:_panel},
 datatype:"html",
 success:function(ret){
-    console.log(ret);
 var ret = eval('('+ret+')');
+console.log(ret);
 var arr = new Array();
 var rst = '';
 if(ret[0]!=""){
@@ -307,6 +324,7 @@ var rst = rst + "<label class=\"control-label col-md-3 col-sm-3 col-xs-12\">备�
 }
 $("#"+_panel+" div[name='rollback_history_remark']").html(rst);
 }
+console.log(rst);
 },
 errors:function(e){
 alert("error");
@@ -314,53 +332,42 @@ alert("error");
 });
 }
 
-{% for panel in groups %}
-$(document).ready(function(){
-    $("#{{ panel }} form").bootstrapValidator({
-fields:{
-tgt_select:{
-validators:{
-notEmpty:{
-message:'请选择主机'
-}
-}
-},
-// rollback_file_list:{
-// validators:{
-// notEmpty:{
-// message:'请选择文件'
-// }
-// }
-// },
-rollback_history_list:{
-validators:{
-notEmpty:{
-message:'请选择历史版本'
-}
-}
-}
-}
-})
-.on('success.form.bv',function(e){
-        e.preventDefault();
-        var tgt_select = $("#{{ panel }} select[name='tgt_select']").val();
-        var rollback_list = $("#{{ panel }} select[name='rollback_list']").val();
-        var tag = $("#{{ panel }} select[name='rollback_history_list']").val();
+
+
+
+
+
+
+
+function commit(exec_type){
+        //debugger
+        if(exec_type==='panel-single'){
+                var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');
+                var tag = $("#panel-single select[name='rollback_history_list']").val();
+        }else{
+        var tgt_select = $("#search_group").val();
+        var tag = $("#panel-group select[name='rollback_history_list']").val();
+        }
+        console.log('##########'+tgt_select+'#'+tag)
         $(".loading").show();
         $.ajax({
 type:"POST",
 url:"{% url 'ajax_rollback' %}",
-data:{tgt_select:tgt_select,tag:tag,remote_path:rollback_list,check_type:"{{ panel }}"},
+data:{tgt_select:tgt_select,tag:tag,check_type:exec_type},
 dataType:"html",
 success:function(ret){
+    console.log('________________________________________');
+    console.log(ret);
 $(".loading").hide();
 var ret = eval('('+ret+')');
-$("#{{ panel }} textarea[name='result']").html(ret);
+if(exec_type==='panel-single'){
+    $("#panel-single textarea[name='result']").html(ret);
+}else{
+    $("#panel-group textarea[name='result']").html(ret);
+}
 },
 });
-        })
-    })
-{% endfor %}
+}
 
 
 
@@ -375,7 +382,6 @@ function get_group_minion(obj) {
                     dataType: "json",
                     success: function (ret) {
                         $.each(ret, function (i, item) {
-                            console.log(item);
                             if(item===true)
                                 item = "在线";
                             else
@@ -391,6 +397,65 @@ function get_group_minion(obj) {
 </script>
 
 {% endblock %}
+
+
+
+
+
+
+
+
+<!--{% for panel in groups %}-->
+<!--$(document).ready(function(){-->
+    <!--$("#{{ panel }} form").bootstrapValidator({-->
+<!--fields:{-->
+<!--tgt_select:{-->
+<!--validators:{-->
+<!--notEmpty:{-->
+<!--message:'请选择主机'-->
+<!--}-->
+<!--}-->
+<!--},-->
+<!--// rollback_file_list:{-->
+<!--// validators:{-->
+<!--// notEmpty:{-->
+<!--// message:'请选择文件'-->
+<!--// }-->
+<!--// }-->
+<!--// },-->
+<!--rollback_history_list:{-->
+<!--validators:{-->
+<!--notEmpty:{-->
+<!--message:'请选择历史版本'-->
+<!--}-->
+<!--}-->
+<!--}-->
+<!--}-->
+<!--})-->
+<!--.on('success.form.bv',function(e){-->
+        <!--e.preventDefault();-->
+        <!--var tgt_select = $("#{{ panel }} select[name='tgt_select[]']").val();-->
+        <!--if (tgt_select instanceof Array) {-->
+                <!--var tgt_select = $("#search_single_to option").map(function(){return $(this).val();}).get().join(',');-->
+        <!--}-->
+        <!--var tag = $("#{{ panel }} select[name='rollback_history_list']").val();-->
+        <!--console.log('##########'+tgt_select+'#'+tag)-->
+        <!--$(".loading").show();-->
+        <!--$.ajax({-->
+<!--type:"POST",-->
+<!--url:"{% url 'ajax_rollback' %}",-->
+<!--data:{tgt_select:tgt_select,tag:tag,check_type:"{{ panel }}"},-->
+<!--dataType:"html",-->
+<!--success:function(ret){-->
+    <!--console.log(ret);-->
+<!--$(".loading").hide();-->
+<!--var ret = eval('('+ret+')');-->
+<!--$("#{{ panel }} textarea[name='result']").html(ret);-->
+<!--},-->
+<!--});-->
+        <!--})-->
+    <!--});-->
+<!--{% endfor %}-->
 
 
 

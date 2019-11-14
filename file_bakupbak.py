@@ -36,34 +36,24 @@ def md5sum(fname):
         return ""
     return m.hexdigest()
 
-def Backup(user_id, tag, remote_path,file_name):
-    bkpath='/srv/backup/user_%s/%s/%s' % (user_id, tag, remote_path)
+def Backup(dest, tag, md5):
+    bkpath = os.path.join('/srv/salt', '%s-%s'%(dest.lstrip('/'),tag))
     if not os.path.isdir(os.path.dirname(bkpath)):
-        os.makedirs(bkpath)
+        os.makedirs(os.path.dirname(bkpath))
     try:
-        shutil.copyfile(remote_path+'/'+file_name, bkpath+'/'+file_name)
+        md5_new = md5sum(dest)
+        if md5_new == md5:
+            return 1
+        else:
+            shutil.copyfile(dest, bkpath)
+            return 0
     except:
-        return '备份失败'
-    else:
-        return '备份成功'
-    # try:
-    #     md5_new = md5sum(dest)
-    #     if md5_new == md5:
-    #         return 1
-    #     else:
-    #         shutil.copyfile(dest, bkpath)
-    #         return 0
-    # except:
-    #     return None
+        return None
 
-def Rollback(user_id, tag, remote_path,file_name):
-    bkpath =os.path.join('/srv/backup/user_%s/%s/%s' % (user_id, tag, remote_path),file_name)
-    try:
-        shutil.copyfile(bkpath, remote_path+'/'+file_name)
-    except:
-        return '回滚失败'
-    else:
-        return '回滚成功'
+def Rollback(dest, tag, md5):
+    bkpath = os.path.join('/srv/salt', '%s-%s'%(dest.lstrip('/'), tag))
+    shutil.copyfile(bkpath, dest)
+    return 'ok'
 if __name__ == '__main__':
     fname=sys.argv[1]
     t=md5sum(fname)

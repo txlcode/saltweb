@@ -43,9 +43,9 @@ def Backup(user_id, tag, remote_path,file_name):
     try:
         shutil.copyfile(remote_path+'/'+file_name, bkpath+'/'+file_name)
     except:
-        return '备份失败'
+        return file_name+':back failed!'
     else:
-        return '备份成功'
+        return file_name+':back success!'
     # try:
     #     md5_new = md5sum(dest)
     #     if md5_new == md5:
@@ -61,9 +61,9 @@ def Rollback(user_id, tag, remote_path,file_name):
     try:
         shutil.copyfile(bkpath, remote_path+'/'+file_name)
     except:
-        return '回滚失败'
-    else:
-        return '回滚成功'
+        return file_name+':roll failed!'
+    else:	
+        return file_name+':roll success!'
 if __name__ == '__main__':
     fname=sys.argv[1]
     t=md5sum(fname)
