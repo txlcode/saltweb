@@ -31,15 +31,15 @@
                                 <tr>
                                     <th>项目名称</th>
                                     <th>项目路径</th>
-                                    <th>源地址</th>
+                                    <th>rsync模块名称</th>
                                     <th>负责人</th>
                                     <th>属组</th>
                                     <th>操作&nbsp;
                                       <div id="env" class="btn-group" data-toggle="buttons">
-                                        <label class="btn btn-primary btn-xs" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">
+                                        <label class="btn btn-default btn-sm" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">
                                           <input type="radio" name="env" value="0"> &nbsp;测试&nbsp;
                                         </label>
-                                        <label class="btn btn-default btn-xs" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">
+                                        <label class="btn btn-default btn-sm" data-toggle-class="btn-primary" data-toggle-passive-class="btn-default">
                                           <input type="radio" name="env" value="1"> &nbsp;正式&nbsp;
                                         </label>
                                       </div>
@@ -195,6 +195,7 @@ function project_manage(obj, action){
         $('#result-modal-project').modal('show');
         return false;
     }
+    debugger;
     var tag = $(obj).attr("tag");
     var enforce = $(obj).attr("enforce");
     var url = "{%  url 'project_deploy' %}?id=" + obj.name + "&tag=" + tag + "&enforce=" + enforce + "&env=" + env + "&" + action + "=1";
@@ -206,10 +207,11 @@ data:{},
 dataType:"html",
 success:function(ret) {
 $(".loading").hide();
-var ret = JSON.parse( ret );
+console.log(ret);
+var ret = eval('('+ret+')')
 var html = "";
 for(i in ret){
-html = html + "<p class='mydashed'><b style='color: #66d9ef'>" + i + "</b><br />" + ret[i]['result'] + "</p>";
+html = html + "<p class='mydashed'><b style='color: #66d9ef'>" + i + "</b><br />" + ret[i] + "</p>";
 }
 
 $("#modal-body").html(html);

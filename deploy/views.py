@@ -113,7 +113,12 @@ def ProjectExec(sapi, tgt_list, fun, arg, expr_form):
     :param expr_form:
     :return:
     '''
-    jid = sapi.remote_execution(tgt_list, fun, arg + ';echo ":::"$?', expr_form)
+    k = sapi.remote_execution(tgt_list, fun, arg + ' >/dev/null 2>&1 && echo "success" || echo "fail"', expr_form)
+    for k in ret:
+        rst = rst + u'主机：' + k + '\n回滚结果：' + ret[k] + '\n' + '-' * 80 + '\n'
+
+
+
     s = SaltGroup.objects.get(groupname=tgt_list)
     s_len = s.minions.all().count()
     ret = ''
@@ -121,13 +126,13 @@ def ProjectExec(sapi, tgt_list, fun, arg, expr_form):
     while (len(rst) < s_len):
         rst = sapi.salt_runner(jid)
         # time.sleep(1)
-    for k in rst:
-        ret = ret + u'主机：<span style="color:#e6db74">' + k + '</span><br />运行结果：<br />%s<br />' % rst[k]
-        r = rst[k].split(':::')[-1].strip()
-        if r != '0':
-            ret = ret + '<span style="color:#f92672">%s</span> 执行失败！<br />' % arg + '<br />'
-        else:
-            ret = ret + '<span style="color:#e6db74">%s</span> 执行成功！<br />' % arg + '<br />'
+    # for k in rst:
+    #     ret = ret + u'主机：<span style="color:#e6db74">' + k + '</span><br />运行结果：<br />%s<br />' % rst[k]
+    #     r = rst[k].split(':::')[-1].strip()
+    #     if r != '0':
+    #         ret = ret + '<span style="color:#f92672">%s</span> 执行失败！<br />' % arg + '<br />'
+    #     else:
+    #         ret = ret + '<span style="color:#e6db74">%s</span> 执行成功！<br />' % arg + '<br />'
     return {u'进程管理': {'result': ret}}
 
 
@@ -1422,27 +1427,28 @@ def project_deploy(request):
                 sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
                                password=settings.SALT_API['password'])
                 dtime = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+                tag = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
                 ret = sapi.file_copy(tgt_list, 'cp.get_file', 'salt://rsync/%s.list' % project.name,
                                      '/srv/salt/%s.list' % project.name, 'nodegroup')
+                # if request.GET.has_key('init'):
+                #     action = u'初始化项目'
+                #     ret = sapi.project_manage(tgt_list, 'project_manage.ProjectSync', project.name,
+                #                               '%s//s%:%s@%s' % (url[0], project.src_user, project.src_passwd, url[1]),
+                #                               project.path, 'init', dtime, expr_form)
+
                 if request.GET.has_key('init'):
                     action = u'初始化项目'
-                    ret = sapi.project_manage(tgt_list, 'project_manage.ProjectSync', project.name,
-                                              '%s//%s:%s@%s' % (url[0], project.src_user, project.src_passwd, url[1]),
-                                              project.path, 'init', dtime, expr_form)
+                    ret = sapi.project_manage(tgt_list, 'project_manage.ProjectSync',expr_form,project.src_user,
+                                              request.user.id,project.src,project.path,project.pname)
 
                 if request.GET.has_key('update'):
                     action = u'更新项目'
                     try:
-                        ret = sapi.project_manage(tgt_list, 'project_manage.ProjectSync', project.name,
-                                                  '%s//%s:%s@%s' % (
-                                                  url[0], project.src_user, project.src_passwd, url[1]),
-                                                  project.path, 'update', dtime, expr_form)
-                        for _, v in ret.items():
-                            if v['tag']:
-                                ProjectRollback.objects.create(name=project, tag=v['tag'], env=env)
-                                break
+                        ret = sapi.project_manage(tgt_list, 'project_manage.ProjectUpdate',expr_form, project.src_user,
+                                              request.user.id,project.src,project.path,project.pname,tag)
+                        ProjectRollback.objects.create(name_id=id,user_id=request.user.id,tag=tag,env=env)
                     except:
-                        ret = {u'更新异常': {'result': u'更新失败，检查项目是否发布'}}
+                        ret = {u'更新异常':  u'更新失败，检查项目是否发布'}
 
                 if request.GET.has_key('get_rollback'):
                     action = u'获取备份'
@@ -1455,42 +1461,40 @@ def project_deploy(request):
                     action = u'删除备份'
                     tag = request.GET.get('tag')
                     enforce = request.GET.get('enforce')
-                    ret = sapi.project_manage(tgt_list, 'project_manage.ProjectClean', project.name, tag,
-                                              project.path, 'delete', dtime, expr_form)
-                    for _, v in ret.items():
-                        if v['tag'] or enforce == '1':
-                            ProjectRollback.objects.get(name=project, tag=tag, env=env).delete()
-                            break
+                    ret = sapi.project_manage(tgt_list, 'project_manage.ProjectCleanBackup',expr_form,request.user.id,project.path,project.pname,tag)
+                    ProjectRollback.objects.get(name=id,tag=tag,env=env).delete()
 
                 if request.GET.has_key('rollback'):
                     action = u'回滚项目'
-                    tag = request.GET.get('tag')
-                    ret = sapi.project_manage(tgt_list, 'project_manage.ProjectRollback', project.name, tag,
-                                              project.path, 'rollback', dtime, expr_form)
-
+                    if request.GET.has_key('tag'):
+                        tag = request.GET.get('tag')
+                        ret = sapi.project_manage(tgt_list, 'project_manage.ProjectRollback', expr_form,
+                                                  request.user.id, project.path, project.pname, tag)
+                    else:
+                        ret = {u'回滚异常': u'请选择你需要回滚的版本号'}
                 if request.GET.has_key('start'):
                     action = u'启动进程'
                     tag = request.GET.get('tag')
                     if tag:
-                        ret = ProjectExec(sapi, tgt_list, 'cmd.run', tag, expr_form)
+                        ret = sapi.project_Exec(tgt_list, 'cmd.run', expr_form,tag + ' >/dev/null 2>&1 && echo "Start Success!" || echo "Start Failed!"')
                     else:
-                        ret = {u'进程管理': {'result': u'未配置启动项'}}
+                        ret = {u'进程管理': u'未配置启动项'}
 
                 if request.GET.has_key('reload'):
                     action = u'重启进程'
                     tag = request.GET.get('tag')
                     if tag:
-                        ret = ProjectExec(sapi, tgt_list, 'cmd.run', tag, expr_form)
+                        ret = sapi.project_Exec(tgt_list, 'cmd.run', expr_form,tag + ' >/dev/null 2>&1 && echo "Reload Success!" || echo "Reload Failed!"')
                     else:
-                        ret = {u'进程管理': {'result': u'未配置重启项'}}
+                        ret = {u'进程管理':  u'未配置重启项'}
 
                 if request.GET.has_key('stop'):
                     action = u'停止进程'
                     tag = request.GET.get('tag')
                     if tag:
-                        ret = ProjectExec(sapi, tgt_list, 'cmd.run', tag, expr_form)
+                        ret = sapi.project_Exec(tgt_list, 'cmd.run', expr_form,tag + ' >/dev/null 2>&1 && echo "Stop Success!" || echo "Stop Failed!"')
                     else:
-                        ret = {u'进程管理': {'result': u'未配置停止项'}}
+                        ret = {u'进程管理':  u'未配置停止项'}
 
                 Message.objects.create(type=u'项目管理', user=request.user.first_name, action=action,
                                        action_ip=UserIP(request), content='%s %s' % (project.pname, ret))

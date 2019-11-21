@@ -10,7 +10,6 @@
 
 import sys
 import urllib2, urllib
-
 if sys.version_info < (2, 7, 9):
     import ssl
     context = None
@@ -199,7 +198,7 @@ class SaltAPI(object):
         content = self.postRequest(obj)
         return content
 
-    def project_manage(self,tgt,fun,arg1,arg2,arg3,arg4,arg5,expr_form):
+    def project_manage(self,tgt,fun,expr_form,arg1,arg2,arg3,arg4,arg5='',arg6=''):
         '''
         文件上传、备份到minion、项目管理
         '''
@@ -215,14 +214,52 @@ class SaltAPI(object):
         params4 = {'arg': arg4}
         arg_add = urllib.urlencode(params4)
         obj = obj + '&' + arg_add
-        params5 = {'arg': arg5}
-        arg_add = urllib.urlencode(params5)
-        obj = obj + '&' + arg_add
+        if arg5 != '':
+            params5 = {'arg': arg5}
+            arg_add = urllib.urlencode(params5)
+            obj = obj + '&' + arg_add
+        if arg6 != '':
+            params6 = {'arg': arg6}
+            arg_add = urllib.urlencode(params6)
+            obj = obj + '&' + arg_add
         self.token_id()
         content = self.postRequest(obj)
         ret = content['return'][0]
         return ret
-
+    # def project_manage_project(self,tgt,fun,arg1,arg2,arg3,arg4,arg5,expr_form):
+    #     '''
+    #     文件上传、备份到minion、项目管理
+    #     '''
+    #     params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'arg': arg1, 'expr_form': expr_form}
+    #     # 拼接url参数
+    #     params2 = {'arg':arg2}
+    #     arg_add = urllib.urlencode(params2)
+    #     obj = urllib.urlencode(params)
+    #     obj = obj + '&' + arg_add
+    #     params3 = {'arg': arg3}
+    #     arg_add = urllib.urlencode(params3)
+    #     obj = obj + '&' + arg_add
+    #     params4 = {'arg': arg4}
+    #     arg_add = urllib.urlencode(params4)
+    #     obj = obj + '&' + arg_add
+    #     params5 = {'arg': arg5}
+    #     arg_add = urllib.urlencode(params5)
+    #     obj = obj + '&' + arg_add
+    #     self.token_id()
+    #     content = self.postRequest(obj)
+    #     ret = content['return'][0]
+    #     return ret
+    def project_Exec(self,tgt,fun,expr_form,arg1,):
+        '''
+        文件上传、备份到minion、项目管理
+        '''
+        params = {'client': 'local', 'tgt': tgt, 'fun': fun, 'arg': arg1, 'expr_form': expr_form}
+        obj = urllib.urlencode(params)
+        # 拼接url参数
+        self.token_id()
+        content = self.postRequest(obj)
+        ret = content['return'][0]
+        return ret
     def file_copy(self,tgt,fun,arg1,arg2,expr_form):
         '''
         文件上传、备份到minion、项目管理
@@ -293,10 +330,36 @@ class SaltAPI(object):
         return ret
 
 def main():
+    if sys.getdefaultencoding() != 'utf-8':
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
     sapi = SaltAPI(url='https://10.24.238.20:8000',username='saltapi',password='123')
-    minions, minions_pre = sapi.list_all_key()
-    print minions
-    print minions_pre
+    # jid = sapi.remote_execution('cdsb2', 'cmd.run', 'ls' + ';echo ":::"$?', 'nodegroup')
+    # s = SaltGroup.objects.get(groupname='cdsb2')
+    # s_len = s.minions.all().count()
+    rst=''
+    tgt_list='cdsb2'
+    fun='cmd.run'
+    arg='/tmp/rsync/project start'
+    expr_form='nodegroup'
+    ret = sapi.project_Exec(tgt_list, 'cmd.run', expr_form, arg + ' >/dev/null 2>&1 && echo "success" || echo "fail"')
+    for k in ret:
+         rst = rst + u'主机：' + k + '\n回滚结果：' + ret[k] + '\n' + '-' * 80 + '\n'
+        # t=men.keys()
+        # top=men['iZbp136uo36nxgckrzxlosZ']
+        # top=men['iZbp136uo36nxgckrzxlosZ']
+        #       men['iZbp136uo36nxgckrzxlosZ']
+        # t=r['iZbp136uo36nxgckrzxlosZ']
+        # k=r['iZbp136uo36nxgckrzxlosZ']
+        # k=r['iZbp136uo36nxgckrzxlosZ']
+        # if r != '0':
+        #     ret = ret + '<span style="color:#f92672">%s</span> 执行失败！<br />' % arg + '<br />'
+        # else:
+        #     ret = ret + '<span style="color:#e6db74">%s</span> 执行成功！<br />' % arg + '<br />'
+    # return {u'进程管理': {'result': ret}}
+    print ret
+    # # while (len(rst) < s_len):
+    #     rst = sapi.salt_runner(jid)
 
 if __name__ == '__main__':
     main()

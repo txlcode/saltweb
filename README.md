@@ -1,5 +1,5 @@
 # SOMS CENTOS7  FUCK
-
+https://github.com/qitan/SOMS
 OMS自动化运维平台
 
 ##### 20181012更新：代码优化、功能完善

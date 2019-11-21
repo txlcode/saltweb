@@ -75,12 +75,14 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ('pname', 'src', 'src_user', 'src_passwd', 'path', 'process', 'user_group', 'salt_test', 'salt_group')
+        #fields = ('pname', 'src', 'src_user', 'src_passwd', 'path', 'process', 'user_group', 'salt_test', 'salt_group')
+        #取消密码
+        fields = ('pname', 'src', 'src_user', 'path', 'process', 'user_group', 'salt_test', 'salt_group')
         widgets = {
             'pname': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'src': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
             'src_user': forms.TextInput(attrs={'class': 'form-control', 'required': 'required'}),
-            'src_passwd': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': u'留空不更改密码'}),
+            # 'src_passwd': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': u'留空不更改密码'}),
             'path': forms.TextInput(attrs={'class': 'form-control', 'placeholder':'/tmp/project', 'required': 'required'}),
             'process': forms.TextInput(attrs={'class': 'form-control',
                                               'placeholder': '/tmp/project start|/tmp/project reload|/tmp/project stop'}),

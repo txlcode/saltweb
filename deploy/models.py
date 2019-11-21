@@ -262,9 +262,10 @@ class Project(models.Model):
     user = models.ForeignKey(User)
     pname = models.CharField(max_length=255, unique=True, verbose_name=u'项目名称')
     name = models.CharField(max_length=255, unique=True, verbose_name=u'项目')
-    src = models.CharField(max_length=255, verbose_name=u'源地址')
+    # src = models.CharField(max_length=255, verbose_name=u'源地址')
+    src = models.CharField(max_length=255, verbose_name=u'rsync模块名称')
     src_user = models.CharField(max_length=80, default=None, blank=True, null=True, verbose_name=u'源用户')
-    src_passwd = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=u'源密码')
+    src_passwd = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=u'源用户密码')
     path = models.CharField(max_length=255, verbose_name=u'项目路径')
     process = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=u'项目进程')
     salt_test = models.CharField(max_length=255, default=None, blank=True, null=True, verbose_name=u'测试环境')
@@ -287,6 +288,7 @@ class Project(models.Model):
 
 
 class ProjectRollback(models.Model):
+    user = models.ForeignKey(User)
     name = models.ForeignKey(Project)
     tag = models.CharField(max_length=100, verbose_name=u'标签')
     env = models.CharField(max_length=1, verbose_name=u'发布环境')
