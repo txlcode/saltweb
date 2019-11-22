@@ -1,71 +1,8 @@
-# SOMS CENTOS7  FUCK
+# SOMS
 https://github.com/qitan/SOMS
-OMS自动化运维平台
 
-##### 20181012更新：代码优化、功能完善
-
-一直想写个运维平台，无奈前端太差（虽然也不懂开发语言），所以没实现。。
-
-还好有不少人共享了各种各样的平台，其中就有OMS运维平台
-
-*binbin开源的OMS平台 链接：https://github.com/binbin91/oms*
-
-所以自己拿来捣鼓，根据自己的需求，也算是写了点东西出来
-
-* 批量管理
-* 文件管理
-* 用户管理
-* 项目管理等  
-  
-利用空闲时间，启用了全新模板，并不停的修改完善，想到什么就写些什么  
-放到github上也是希望可以给有需要的人一些帮助，也希望可以得到大家的提拔指点  
-
-另外，还是要说一下，希望使用的人可以保留版权出处
-
-
-语言：python  
-框架：django  
-工具：saltstack
-
-使用模板gentelella:
-https://github.com/puikinsh/gentelella
-
-
-SOMS演示地址：
-https://soms.imaojia.com
-
-User: admin
-Passwd: soms123
-
-主机管理  
-![](https://imaojia.com/media/pictures/2017/02/17/salt-host.png)
-
-命令执行  
-![](https://imaojia.com/media/pictures/2018/10/12/remote-command.png)
-
-![](https://imaojia.com/media/pictures/2018/10/12/remote-command-group.png)
-
-![](https://imaojia.com/media/pictures/2018/10/12/remote-command-advance.png)
-
-模块部署  
-![](https://imaojia.com/media/pictures/2018/10/12/remote-module.png)
-
-文件下载  
-![](https://imaojia.com/media/pictures/2018/10/12/remote-file-download.png)  
-
-文件上传
-![](https://imaojia.com/media/pictures/2018/10/13/remote-file-upload.png)
-
-用户管理  
-![soms-user](https://imaojia.com/media/pictures/2017/02/17/soms-user.png)
-
-安装saltstack(salt version 2018.3)
-
-```
-# yum install salt-master salt-minion salt-api salt-ssh -y
-```
-
-安装PIP
+最好使用CENTOS7的python2.7
+安装PIP（有的话不用装）
 
 ```
 # wget https://bootstrap.pypa.io/get-pip.py
@@ -78,6 +15,11 @@ disable-pip-version-check = true
 timeout = 120
 EOF
 ```
+安装mysql模块
+```
+yum install gcc python-devel mysql-devel  MySQL-python -y
+```
+
 
 配置salt-api
 
@@ -176,7 +118,7 @@ runserver运行检查是否正常
 
 ```
 # python manage.py runserver 0.0.0.0:8080
-```
+如果有uwsgi，就不用运行上面的语句。
 
 如果无法正常运行，请检查以上步骤  
 
