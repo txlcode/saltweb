@@ -55,7 +55,7 @@
                                     <td>{{ p.user.first_name }}</td>
                                     <td>{{ p.user_group }}</td>
                                     <td>
-                                    <fieldset {% if not request.user.pk == p.user.pk and not request.user.is_superuser %}disabled{% endif %}>
+                                    <!--<fieldset {% if not request.user.pk == p.user.pk and not request.user.is_superuser %}disabled{% endif %}>-->
                                         <a href="{% url 'project_edit' id=p.pk %}" class="btn btn-info btn-xs" {% if not perms.deploy.edit_project %}disabled="disabled"{% endif %}><i class="fa fa-pencil"></i></a>
                                         <a onclick="project_manage(this, 'init');" href="javascript:void(0);" tag="" enforce="" name="{{ p.pk }}"
                                            role="button" class="btn btn-xs btn-primary" data-toggle="tooltip" data-placement="top" title="发布"
@@ -86,7 +86,7 @@
                                         </span>
                                         <a href="#" data-toggle="modal" data-target="#reqDelete-t{{ p.pk }}" class="btn btn-danger btn-xs"
                                            {% if not perms.deploy.edit_project %}disabled="disabled"{% endif %}><i class="fa fa-trash-o"></i></a>
-                                    </fieldset>
+                                    <!--</fieldset>-->
                                     </td>
                                     <!-- 模态框（Modal） -->
                                     <div class="modal fade" id="reqDelete-t{{ p.pk }}" tabindex="-1" role="dialog" aria-labelledby="reqDelete" aria-hidden="true">

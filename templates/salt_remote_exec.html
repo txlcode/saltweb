@@ -49,7 +49,7 @@
                                     <div class="tab-pane active" id="panel-single">
                                         <form class="form-horizontal form-border" enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.exec_remote %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">
@@ -90,7 +90,7 @@
                                     <div class="tab-pane" id="panel-group">
                                     <form class="form-horizontal form-border" method="post" action="" enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.exec_remote %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">

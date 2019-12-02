@@ -26,7 +26,7 @@
                         <div class="x_panel" style="border-top:none;">
                             <div class="x_title">
                                 <div class="info"><a href="{% url 'flush_module' %}" class="btn btn-success" role="button"
-                                             {% if not perms.deploy.models_install %}disabled="disabled"{% endif %}
+                                             {% if not perms.deploy.edit_module %}disabled="disabled"{% endif %}
                                              data-toggle="tooltip" data-placement="right"
                                              title="刷新自定义模块">刷新自定义模块</a></div>
                                 <ul class="nav navbar-right panel_toolbox">
@@ -53,7 +53,7 @@
                                     <div class="tab-pane active" id="panel-single">
                                         <form class="form-horizontal form-border" enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.edit_module %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">
@@ -105,7 +105,7 @@
                                         <form class="form-horizontal form-border" method="post" action=""
                                               enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.edit_module %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">

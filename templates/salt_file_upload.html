@@ -110,7 +110,7 @@
                                               action=""
                                               enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.edit_fileupload %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">

@@ -695,10 +695,10 @@ def salt_remote(request):
     '''
     salt远程命令界面
     '''
-    if request.user.has_perm('deploy.view_deploy'):
+    if request.user.has_perm('deploy.view_remote'):
         return render(request, 'salt_remote_exec.html', {'groups': ['panel-single', 'panel-group']})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -760,11 +760,11 @@ def salt_module_deploy(request):
     '''
     salt模块部署界面
     '''
-    if request.user.has_perm('deploy.view_deploy'):
+    if request.user.has_perm('deploy.view_module'):
         modules = ModuleUpload.objects.all()
         return render(request, 'salt_module_deploy.html',{'modules': modules, 'groups': ['panel-single', 'panel-group']})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -772,7 +772,7 @@ def salt_ajax_module_deploy(request):
     '''
     salt模块部署
     '''
-    if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
+    if request.user.has_perms(['deploy.edit_module']):
         result = ''
         tgt_select = request.POST.get('tgt_select')
         check_type = request.POST.get('check_type')
@@ -859,7 +859,7 @@ def salt_advanced_manage(request):
 
         return render(request, 'salt_remote_exec_advance.html', {})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -871,7 +871,7 @@ def salt_file_upload(request):
         form = SaltFileForm()
         return render(request, 'salt_file_upload.html', {'form': form, 'groups': ['panel-single', 'panel-group']})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 def remote_cmd(tgt_select, arg, check_type):
@@ -903,7 +903,7 @@ def salt_file_download(request):
         sapi = SaltAPI(url=settings.SALT_API['url'], username=settings.SALT_API['user'],
                        password=settings.SALT_API['password'])
         if request.method == 'POST':
-            if request.user.has_perms(['deploy.view_filemanage', 'deploy.edit_filedownload']):
+            if request.user.has_perms(['deploy.view_filemanage']):
                 check_type = request.POST.get('check_type')
                 if check_type == 'panel-single':
                     tgt_select = request.POST.get('tgt_select')
@@ -945,7 +945,7 @@ def salt_file_download(request):
             else:
                 raise Http404
         if request.method == 'GET':
-            if request.user.has_perms(['deploy.view_filemanage', 'deploy.edit_filedownload']):
+            if request.user.has_perms(['deploy.view_filemanage']):
                 if request.GET.get('type') == 'download':
                     tgt_select = request.GET.get('tgt_select', None)
                     arg = request.GET.get('arg', None)
@@ -985,10 +985,10 @@ def salt_file_download(request):
 
                     return response
             else:
-                raise Http404
+                return HttpResponse('权限不够！')
         return render(request, 'salt_file_download.html', {})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -1068,11 +1068,11 @@ def salt_file_rollback(request):
     '''
     文件回滚界面
     '''
-    if request.user.has_perm('deploy.view_filemanage'):
+    if request.user.has_perms(['deploy.view_filemanage']):
         form = SaltFileForm()
         return render(request, 'salt_file_rollback.html', {'form': form, 'groups': ['panel-single', 'panel-group']})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -1215,7 +1215,7 @@ def salt_ajax_file_rollback(request):
 
 
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -1329,7 +1329,7 @@ def project_list(request):
                 project_list = Project.objects.filter(user_group=g)
         return render(request, 'salt_project_list.html', {'projects': project_list})
     else:
-        raise Http404
+        return HttpResponse('权限不够！')
 
 
 @login_required
@@ -1547,7 +1547,7 @@ def get_modules_func(request):
         #f.close()
 @login_required
 def salt_flush_module(request):
-    if request.user.has_perms(['deploy.view_deploy', 'deploy.edit_deploy']):
+    if request.user.has_perms(['deploy.view_module', 'deploy.edit_module']):
         path='/data/wwwroot/soms/media/salt'
         lists = os.listdir(path)
         lists.remove('_grains')
@@ -1565,6 +1565,9 @@ def salt_flush_module(request):
         for f in lists:
                 Customize_modules.objects.create(modules=f)
         return redirect('module_deploy')
+    else:
+        return HttpResponse('权限不够！')
+
 
 
 

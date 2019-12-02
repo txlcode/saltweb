@@ -94,7 +94,7 @@
                                         <form class="form-horizontal form-border" method="post" action=""
                                               enctype="multipart/form-data">
                                             {% csrf_token %}
-                                            {% if perms.deploy.edit_deploy %}
+                                            {% if perms.deploy.edit_filedownload %}
                                                 <fieldset>
                                             {% else %}
                                                 <fieldset disabled="disabled">

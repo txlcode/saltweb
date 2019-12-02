@@ -47,7 +47,7 @@
                                 <div class="tab-pane active" id="panel-single">
                                     <form class="form-horizontal form-border" method="post"  enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        {% if perms.deploy.edit_fileupload %}
+                                        {% if perms.deploy.edit_filerollback %}
                                         <fieldset>
                                         {% else %}
                                         <fieldset disabled="disabled">
@@ -104,7 +104,7 @@
                                 <div class="tab-pane" id="panel-group">
                                     <form class="form-horizontal form-border" method="post"  enctype="multipart/form-data">
                                         {% csrf_token %}
-                                        {% if perms.deploy.edit_fileupload %}
+                                        {% if perms.deploy.edit_filerollback %}
                                         <fieldset>
                                         {% else %}
                                         <fieldset disabled="disabled">

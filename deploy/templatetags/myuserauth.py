@@ -26,6 +26,7 @@ def show_permissions(aid, perm_type):
     permissions = Permission.objects.filter(
         Q(content_type__app_label__exact='asset') |
         Q(content_type__app_label__exact='deploy') |
+        Q(content_type__app_label__exact='userauth') |
         Q(content_type__app_label__exact='userperm')).values('pk', 'name')
     permissions_dict = {i['pk']:i['name'] for i in permissions}
 
