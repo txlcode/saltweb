@@ -89,6 +89,9 @@ urlpatterns = [
     #settings.DEBUG = False,取消下面注释
     #url(r'^{}(?P<path>.*)$'.format(settings.STATIC_URL[1:]), serve,{'document_root': settings.STATIC_ROOT }),
     url(r'^deploy/get_modules_func/$', dviews.get_modules_func, name='get_modules_func'),
+    ##test
+    url(r'^cdsb/$', dviews.current_url_view_good, name='cdsb'),
+
 ]
 #handler403 = view.page_permission_denied
 #handler404 = view.page_not_found

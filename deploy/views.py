@@ -1569,6 +1569,12 @@ def salt_flush_module(request):
         return HttpResponse('权限不够！')
 
 
+@login_required
+def current_url_view_good(request):
+    t=''
+    for key,value in request.META.items():
+        t=t+'%s:%s'
+    return HttpResponse("Welcome to the page at %s" % t)
 
 
 
@@ -1578,4 +1584,5 @@ def salt_flush_module(request):
 
 
 
-            #return render(request, 'salt_remote_salt_exec.html',{'modules_list': modules_list, 'func_dict': func_dict})
+
+

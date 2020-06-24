@@ -90,7 +90,7 @@ class SaltHost(models.Model):
     alive = models.BooleanField(default=False, verbose_name=u'连通状态')
     # 上次检测时间
     #alive_time_last = models.DateTimeField(auto_now=True)
-    alive_time_last = models.DateTimeField()
+    alive_time_last = models.DateTimeField(verbose_name=u'上次上线时间为')
     # 当前检测时间
     #alive_time_now = models.DateTimeField(auto_now=True)
     alive_time_now = models.DateTimeField()
@@ -109,7 +109,7 @@ class SaltHost(models.Model):
             #("edit_salthost", u"管理Salt主机"),
         )
         verbose_name = u'Salt主机授权'
-        verbose_name_plural = u'Salt主机授权管理'
+        verbose_name_plural = u'Salt主机管理'
 class SaltGroup(models.Model):
     # 定义分组别名
     nickname = models.CharField(
@@ -178,6 +178,12 @@ class ModuleUpload(models.Model):
         verbose_name_plural = u'Salt模块管理'
 
 
+
+class CountManager(models.Manager):
+    def host_name_count(self, keyword):
+        return self.filter(host_name__icontains=keyword).count()
+
+
 class FileUpload(models.Model):
     user = models.ForeignKey(User)
     host= models.ForeignKey(SaltHost)
@@ -194,9 +200,10 @@ class FileUpload(models.Model):
         verbose_name=u'文件标签')
     remark = models.TextField(max_length=50, blank=True, verbose_name=u'备注')
 
+    objects = models.Manager()
+    count_objects = CountManager()
     def __str__(self):
         return self.file_path
-
     class Meta:
         default_permissions = ()
         permissions = (
